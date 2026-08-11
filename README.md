@@ -1,6 +1,6 @@
 # ![banner](https://cdn.modrinth.com/data/o9qWm7KA/images/a799ab783a5c822d2d559dcf178b7c7d71d8e81d.png)
 
-[![ModrinthDownloads](https://img.shields.io/modrinth/dt/o9qWm7KA?style=plastic&logo=modrinth&logoColor=%2300AF5C&label=Modrinth)](https://modrinth.com/mod/collision-effects)
+[![ModrinthDownloads](https://img.shields.io/modrinth/dt/Up4aJXM7?style=plastic&logo=modrinth&logoColor=%2300AF5C&label=Modrinth)](https://modrinth.com/mod/collision-effects)
 [![CurseForgeDownloads](https://img.shields.io/curseforge/dt/1648091?style=plastic&logo=curseforge&logoColor=%23F16436&label=CurseForge)](https://www.curseforge.com/minecraft/mc-mods/collision-effects)
 
 > *See every impact!*
