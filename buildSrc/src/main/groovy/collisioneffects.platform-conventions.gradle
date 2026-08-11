@@ -1,0 +1,23 @@
+plugins {
+    id 'collisioneffects.base-conventions'
+    id 'java-library'
+    id 'maven-publish'
+}
+
+java {
+    withSourcesJar()
+}
+
+jar {
+    from(rootProject.file('LICENSE')) {
+        rename { "${it}_${rootProject.name}-${project.name}" }
+    }
+}
+
+publishing {
+    publications {
+        create('mavenJava', MavenPublication) {
+            from components.java
+        }
+    }
+}

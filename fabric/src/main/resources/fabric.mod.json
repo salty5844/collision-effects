@@ -1,0 +1,46 @@
+{
+	"schemaVersion": 1,
+	"id": "collision-effects",
+	"version": "${version}",
+	"name": "Collision Effects",
+	"description": "See every impact! - HUD particle effects for impacts and environmental interactions",
+	"authors": [
+		"Taylor Kerr (salty5844)"
+	],
+	"contributors": [
+		"Brandon Hartsock - Design",
+		"Ciera Marshall - Concept",
+		"Zoey Smith - Design"
+	],
+	"contact": {
+		"homepage": "https://github.com/salty5844/collision-effects",
+		"sources": "https://github.com/salty5844/collision-effects"
+	},
+	"license": "MIT",
+	"icon": "assets/collision-effects/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"salty5844.collisioneffects.CollisionEffects"
+		],
+		"client": [
+			"salty5844.collisioneffects.client.core.Client"
+		],
+		"modmenu": [
+			"salty5844.collisioneffects.client.core.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"collision-effects.mixins.json",
+		{
+			"config": "collision-effects.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.2",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

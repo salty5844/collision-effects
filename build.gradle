@@ -1,0 +1,12 @@
+plugins {
+	id 'base'
+}
+
+subprojects {
+	group = rootProject.findProperty('maven_group')
+	version = rootProject.findProperty('mod_version')
+
+	tasks.withType(AbstractArchiveTask).configureEach {
+		archiveBaseName = "${rootProject.name}-${project.name}"
+	}
+}

@@ -1,0 +1,49 @@
+plugins {
+id 'collisioneffects.platform-conventions'
+id 'net.neoforged.moddev' version '2.0.143'
+}
+
+neoForge {
+version = project.neoforge_version
+
+runs {
+client {
+client()
+gameDirectory = project.file('run')
+}
+}
+
+mods {
+"collision_effects" {
+sourceSet(sourceSets.main)
+}
+}
+}
+
+sourceSets {
+main {
+java {
+srcDir '../common/src/main/java'
+srcDir '../common/src/client/java'
+}
+resources {
+srcDir '../common/src/main/resources'
+}
+}
+}
+
+processResources {
+inputs.property 'version', project.version
+
+filesMatching('META-INF/neoforge.mods.toml') {
+expand 'version': inputs.properties.version
+}
+}
+
+def fallbackLauncher = javaToolchains.launcherFor {
+	languageVersion = org.gradle.jvm.toolchain.JavaLanguageVersion.of(25)
+}
+
+tasks.matching { it.name == 'downloadAssets' }.configureEach {
+	javaExecutable = fallbackLauncher.get().executablePath.asFile.absolutePath
+}

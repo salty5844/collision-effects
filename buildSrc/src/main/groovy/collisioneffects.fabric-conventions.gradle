@@ -1,0 +1,4 @@
+plugins {
+    id 'collisioneffects.platform-conventions'
+    id 'net.fabricmc.fabric-loom'
+}

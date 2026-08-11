@@ -1,0 +1,44 @@
+# eclipse
+
+*.launch
+
+# fabric
+
+run/
+
+# gradle
+
+.gradle/
+build/
+classes/
+out/
+
+# idea
+
+*.iml
+*.ipr
+*.iws
+
+# java
+
+*.dmp
+*.hprof
+*.hprof.gz
+*.jfr
+core
+core.*
+hs_err_*.log
+javacore.*.txt
+replay_*.log
+
+# macos
+
+*.DS_Store
+
+# vscode
+
+.classpath
+.project
+.settings/
+.vscode/
+bin/

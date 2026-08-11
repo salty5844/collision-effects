@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "../../Visual Studio 2022/Documents"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"java.compile.nullAnalysis.mode": "automatic",
+		"powershell.cwd": "collision-effects",
+		"terminal.integrated.cwd": "${workspaceFolder:collision-effects}",
+		"java.configuration.updateBuildConfiguration": "automatic"
+	}
+}
