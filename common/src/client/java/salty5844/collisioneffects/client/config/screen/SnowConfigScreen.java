@@ -71,7 +71,7 @@ public final class SnowConfigScreen extends Screen {
 		this.addRenderableWidget(Button.builder(Component.literal("Back"), button -> {
 			Config.getInstance().save(Config.getConfigDir());
 			this.onClose();
-		}).bounds(centerX - 100, this.height - 28, 200, 20).build());
+		}).bounds(centerX - 100, this.height - 48, 200, 20).build());
 	}
 
 	private CycleButton<Boolean> addToggleRow(String label, boolean initialValue, int rowX, int rowY, BooleanValueConsumer onChange) {

@@ -65,6 +65,8 @@ public final class ConfigScreen extends Screen {
 	private int scrollbarDragOffset = 0;
 	private @Nullable Button configurationHotkeyButton;
 	private @Nullable Button configurationHotkeyResetButton;
+	private @Nullable Button resetButton;
+	private @Nullable Button doneButton;
 	private boolean listeningForConfigurationHotkey = false;
 	private boolean configurationHotkeyHasConflict = false;
 	private final List<Component> configurationHotkeyConflicts = new ArrayList<>();
@@ -99,7 +101,7 @@ public final class ConfigScreen extends Screen {
 		String titleText = "Collision Effects Configuration";
 		int titleWidth = this.font.width(titleText);
 		this.addRenderableWidget(new StringWidget((this.width - titleWidth) / 2, 12, titleWidth, 20, Component.literal(titleText), this.font));
-		this.addRenderableWidget(Button.builder(Component.literal("Reset"), button -> {
+		resetButton = this.addRenderableWidget(Button.builder(Component.literal("Reset"), button -> {
 			if (this.minecraft != null) {
 				this.minecraft.setScreenAndShow(new ResetConfirmScreen(this));
 			}
@@ -234,30 +236,37 @@ public final class ConfigScreen extends Screen {
 
 		updateScrollBounds();
 		applyScrollAndVisibility();
-		this.addRenderableWidget(Button.builder(Component.literal("Done"), button -> {
+		doneButton = this.addRenderableWidget(Button.builder(Component.literal("Done"), button -> {
 			Config.getInstance().save(Config.getConfigDir());
 			this.onClose();
 		}).bounds(centerX - 100, this.height - 28, 200, 20).build());
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-		if (maxScroll > 0 && scrollY != 0.0D) {
-			int scrollStep = Math.max(1, MENU_ROW_HEIGHT / 2);
-			scrollBy(scrollY > 0.0D ? -scrollStep : scrollStep);
+	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean captured) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		if (mouseX < 8 || mouseX > this.width - 8 || mouseY < 8 || mouseY > this.height - 8) {
 			return true;
 		}
-		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
-	}
-
-	@Override
-	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean captured) {
+		if (isOverResetButton(mouseX, mouseY)) {
+			Button resetButton = this.resetButton;
+			return resetButton != null && resetButton.mouseClicked(event, captured);
+		}
+		if (isOverDoneButton(mouseX, mouseY)) {
+			Button doneButton = this.doneButton;
+			return doneButton != null && doneButton.mouseClicked(event, captured);
+		}
+		if (mouseY < getViewportBorderTop()) {
+			return true;
+		}
+		if (mouseY >= getViewportBorderBottom()) {
+			return true;
+		}
 		if (listeningForConfigurationHotkey && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 			listeningForConfigurationHotkey = false;
 			refreshConfigurationHotkeyButtons(Config.getInstance());
 		}
-		double mouseX = event.x();
-		double mouseY = event.y();
 		if (event.button() == 0 && maxScroll > 0 && isInScrollbarTrack(mouseX, mouseY)) {
 			int handleY = getScrollbarHandleY();
 			int handleHeight = getScrollbarHandleHeight();
@@ -272,6 +281,16 @@ public final class ConfigScreen extends Screen {
 			return true;
 		}
 		return super.mouseClicked(event, captured);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (maxScroll > 0 && scrollY != 0.0D) {
+			int scrollStep = Math.max(1, MENU_ROW_HEIGHT / 2);
+			scrollBy(scrollY > 0.0D ? -scrollStep : scrollStep);
+			return true;
+		}
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override
@@ -599,6 +618,17 @@ public final class ConfigScreen extends Screen {
 
 	private int getViewportBorderBottom() {
 		return this.height - FOOTER_HEIGHT;
+	}
+
+	private boolean isOverResetButton(double mouseX, double mouseY) {
+		int buttonX = this.width - 70;
+		return mouseX >= buttonX && mouseX < buttonX + 56 && mouseY >= 12 && mouseY < 32;
+	}
+
+	private boolean isOverDoneButton(double mouseX, double mouseY) {
+		int buttonX = (this.width / 2) - 100;
+		int buttonY = this.height - 28;
+		return mouseX >= buttonX && mouseX < buttonX + 200 && mouseY >= buttonY && mouseY < buttonY + 20;
 	}
 
 	private int getViewportHeight() {

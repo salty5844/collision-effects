@@ -10,9 +10,9 @@ issueTrackerURL = "https://github.com/salty5844/collision-effects/issues"
     description = '''See every impact! - HUD particle effects for impacts and environmental interactions'''
     iconFile = "assets/collision-effects/icon.png"
     bannerFile = "assets/collision-effects/banner.png"
-    authors = "Taylor Kerr (salty5844)"
+    authors = "salty5844"
     credits = "Brandon Hartsock - Design, Ciera Marshall - Concept, Zoey Smith - Design"
-    displayURL = "https://modrinth.com/mod/collision-effects"
+    displayURL = "https://www.salty5844.com/"
 
 [[dependencies."collision_effects"]]
     modId = "neoforge"

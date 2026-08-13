@@ -20,6 +20,7 @@ import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
@@ -144,6 +145,16 @@ public final class BugSplatterConfigScreen extends Screen {
 			Config.getInstance().save(Config.getConfigDir());
 			this.onClose();
 		}).bounds(centerX - 100, this.height - 28, 200, 20).build());
+	}
+
+	@Override
+	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean captured) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		if (mouseX < 8 || mouseX > this.width - 8 || mouseY < 8 || mouseY > this.height - 8) {
+			return true;
+		}
+		return super.mouseClicked(event, captured);
 	}
 
 	private CycleButton<Boolean> addToggleRow(String label, boolean initialValue, int rowX, int rowY, int labelWidth, BooleanValueConsumer onChange) {

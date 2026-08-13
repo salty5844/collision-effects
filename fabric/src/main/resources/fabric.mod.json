@@ -5,7 +5,7 @@
 	"name": "Collision Effects",
 	"description": "See every impact! - HUD particle effects for impacts and environmental interactions",
 	"authors": [
-		"Taylor Kerr (salty5844)"
+		"salty5844"
 	],
 	"contributors": [
 		"Brandon Hartsock - Design",
@@ -13,8 +13,9 @@
 		"Zoey Smith - Design"
 	],
 	"contact": {
-		"homepage": "https://github.com/salty5844/collision-effects",
-		"sources": "https://github.com/salty5844/collision-effects"
+		"homepage": "https://www.salty5844.com/",
+		"sources": "https://github.com/salty5844/collision-effects",
+		"issues": "https://github.com/salty5844/collision-effects/issues"
 	},
 	"license": "MIT",
 	"icon": "assets/collision-effects/icon.png",
