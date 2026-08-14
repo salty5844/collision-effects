@@ -3,12 +3,14 @@ package salty5844.collisioneffects.client.util;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 
 // Sulfur cubes only exist from Minecraft 26.2 onward, so availability is resolved from the registry at runtime.
 public final class SulfurSupport {
 
-	private static final Identifier SULFUR_CUBE_ID = Objects.requireNonNull(Identifier.fromNamespaceAndPath("minecraft", "sulfur_cube"));
+	private static final @NonNull Identifier SULFUR_CUBE_ID = Objects.requireNonNull(Identifier.fromNamespaceAndPath("minecraft", "sulfur_cube"));
 
 	private SulfurSupport() {}
 
