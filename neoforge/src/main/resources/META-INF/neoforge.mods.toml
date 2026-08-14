@@ -17,14 +17,14 @@ issueTrackerURL = "https://github.com/salty5844/collision-effects/issues"
 [[dependencies."collision_effects"]]
     modId = "neoforge"
     type = "required"
-    versionRange = "[26.1,26.3)"
+    versionRange = "[26.2,)"
     ordering = "NONE"
     side = "CLIENT"
 
 [[dependencies."collision_effects"]]
     modId = "minecraft"
     type = "required"
-    versionRange = "[26.1,26.3)"
+    versionRange = "[26.2,)"
     ordering = "NONE"
     side = "CLIENT"
 
