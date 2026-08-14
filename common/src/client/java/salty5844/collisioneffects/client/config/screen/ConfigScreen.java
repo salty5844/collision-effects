@@ -1,6 +1,7 @@
 package salty5844.collisioneffects.client.config.screen;
 
 import salty5844.collisioneffects.client.config.Config;
+import salty5844.collisioneffects.client.util.SulfurSupport;
 
 
 import java.util.ArrayList;
@@ -12,7 +13,6 @@ import java.util.function.IntConsumer;
 import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
@@ -224,12 +224,14 @@ public final class ConfigScreen extends Screen {
 		addSingleOptionToggleButton("Squid Ink", "squid_ink", rightColumnX, rightRowY, buttonWidth);
 		rightRowY += MENU_ROW_HEIGHT;
 
-		addScrollableWidget(Button.builder(Component.literal("Sulfur Cube"), button -> {
-			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new SulfurConfigScreen(this));
-			}
-		}).bounds(rightColumnX, rightRowY, buttonWidth, 20).build(), rightRowY);
-		rightRowY += MENU_ROW_HEIGHT;
+		if (SulfurSupport.isAvailable()) {
+			addScrollableWidget(Button.builder(Component.literal("Sulfur Cube"), button -> {
+				if (this.minecraft != null) {
+					this.minecraft.setScreenAndShow(new SulfurConfigScreen(this));
+				}
+			}).bounds(rightColumnX, rightRowY, buttonWidth, 20).build(), rightRowY);
+			rightRowY += MENU_ROW_HEIGHT;
+		}
 
 		addSingleOptionToggleButton("Wither Vignette", "wither_vingette", rightColumnX, rightRowY, buttonWidth);
 		rightRowY += MENU_ROW_HEIGHT;
@@ -727,14 +729,7 @@ public final class ConfigScreen extends Screen {
 	}
 
 	private List<Component> getConfigurationHotkeyConflicts(Config config) {
-		InputConstants.Key configuredKey = InputConstants.Type.KEYSYM.getOrCreate(config.getConfigurationHotkey());
-		List<Component> conflicts = new ArrayList<>();
-		for (KeyMapping keyMapping : this.minecraft.options.keyMappings) {
-			if (keyMapping.matches(configuredKey)) {
-				conflicts.add(Component.translatable(keyMapping.getName()));
-			}
-		}
-		return conflicts;
+		return new ArrayList<>();
 	}
 
 	private void applyScrollAndVisibility() {

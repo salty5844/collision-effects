@@ -12,5 +12,5 @@ repositories {
 }
 
 dependencies {
-    implementation 'net.fabricmc:fabric-loom:1.16.3'
+    implementation 'net.fabricmc:fabric-loom:1.17.19'
 }

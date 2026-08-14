@@ -7,6 +7,7 @@ subprojects {
 	version = rootProject.findProperty('mod_version')
 
 	tasks.withType(AbstractArchiveTask).configureEach {
-		archiveBaseName = "${rootProject.name}-${project.name}"
+		archiveBaseName = "${rootProject.name}-${rootProject.findProperty('mod_version')}-${project.name}"
+		archiveVersion = rootProject.findProperty('minecraft_version_range')
 	}
 }
