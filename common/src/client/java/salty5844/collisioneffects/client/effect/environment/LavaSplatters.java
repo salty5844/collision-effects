@@ -76,6 +76,8 @@ public final class LavaSplatters {
 		boolean allowCurrentView,
 		boolean freezeForPause,
 		boolean inLava,
+		boolean submerged,
+		boolean lookingDown,
 		boolean swimmingUp
 	) {
 		if (!enabled || !allowCurrentView) {
@@ -84,18 +86,21 @@ public final class LavaSplatters {
 			return;
 		}
 
-		boolean enteredLava = !freezeForPause && inLava && !this.wasInLava;
-		boolean exitedLava = !freezeForPause && !inLava && this.wasInLava;
+		boolean shouldSpawnForLookDirection = !freezeForPause && lookingDown;
+		boolean enteredLava = shouldSpawnForLookDirection && inLava && !this.wasInLava;
+		boolean exitedLava = shouldSpawnForLookDirection && !inLava && this.wasInLava;
+
+		if (submerged) {
+			this.clear();
+			this.wasInLava = true;
+			return;
+		}
 
 		if (enteredLava) {
 			spawnBurst(width, height, BURST_COUNT_PER_TEXTURE, now);
 		}
 
-		if (exitedLava) {
-			spawnBurst(width, height, BURST_COUNT_PER_TEXTURE, now);
-		}
-
-		if (!freezeForPause && inLava && swimmingUp) {
+		if (shouldSpawnForLookDirection && inLava && swimmingUp) {
 			this.surfaceSpawnAccumulator += SURFACE_SPAWN_RATE * elapsedSeconds;
 			while (this.surfaceSpawnAccumulator >= 1.0F) {
 				spawnOne(width, height, now);
@@ -103,6 +108,10 @@ public final class LavaSplatters {
 			}
 		} else if (!freezeForPause) {
 			this.surfaceSpawnAccumulator = 0.0F;
+		}
+
+		if (exitedLava) {
+			spawnBurst(width, height, BURST_COUNT_PER_TEXTURE, now);
 		}
 		this.wasInLava = inLava;
 
