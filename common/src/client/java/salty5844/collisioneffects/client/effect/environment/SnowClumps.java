@@ -9,20 +9,19 @@ import salty5844.collisioneffects.client.util.GlobalParticleCapacity;
 import salty5844.collisioneffects.client.config.Config;
 
 
-import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import org.jspecify.annotations.NonNull;
 import java.util.UUID;
-import org.jspecify.annotations.Nullable;
 
 public final class SnowClumps {
 
@@ -34,18 +33,18 @@ public final class SnowClumps {
 	private static final int CLUMPS_PER_TEXTURE = 8;
 	private static final float SLIDE_SPEED_PX_PER_SEC = 10.0F;
 
-	private record SnowClumpType(@NonNull Identifier texture, int textureSize, float exponentMultiplier) {}
+	private record SnowClumpType(ResourceLocation texture, int textureSize, float exponentMultiplier) {}
 
 	private static final SnowClumpType[] CLUMP_TYPES = new SnowClumpType[]{
-		new SnowClumpType(Identifier.fromNamespaceAndPath("collision-effects", "textures/clumps/small-1.png"), 16, 1.0F),
-		new SnowClumpType(Identifier.fromNamespaceAndPath("collision-effects", "textures/clumps/small-2.png"), 16, 1.0F),
-		new SnowClumpType(Identifier.fromNamespaceAndPath("collision-effects", "textures/clumps/small-3.png"), 16, 1.0F),
-		new SnowClumpType(Identifier.fromNamespaceAndPath("collision-effects", "textures/clumps/medium-1.png"), 16, 1.25F),
-		new SnowClumpType(Identifier.fromNamespaceAndPath("collision-effects", "textures/clumps/medium-2.png"), 16, 1.25F),
-		new SnowClumpType(Identifier.fromNamespaceAndPath("collision-effects", "textures/clumps/medium-3.png"), 16, 1.25F),
-		new SnowClumpType(Identifier.fromNamespaceAndPath("collision-effects", "textures/clumps/large-1.png"), 16, 1.5F),
-		new SnowClumpType(Identifier.fromNamespaceAndPath("collision-effects", "textures/clumps/large-2.png"), 16, 1.5F),
-		new SnowClumpType(Identifier.fromNamespaceAndPath("collision-effects", "textures/clumps/large-3.png"), 16, 1.5F)
+		new SnowClumpType(new ResourceLocation("collision-effects", "textures/clumps/small-1.png"), 16, 1.0F),
+		new SnowClumpType(new ResourceLocation("collision-effects", "textures/clumps/small-2.png"), 16, 1.0F),
+		new SnowClumpType(new ResourceLocation("collision-effects", "textures/clumps/small-3.png"), 16, 1.0F),
+		new SnowClumpType(new ResourceLocation("collision-effects", "textures/clumps/medium-1.png"), 16, 1.25F),
+		new SnowClumpType(new ResourceLocation("collision-effects", "textures/clumps/medium-2.png"), 16, 1.25F),
+		new SnowClumpType(new ResourceLocation("collision-effects", "textures/clumps/medium-3.png"), 16, 1.25F),
+		new SnowClumpType(new ResourceLocation("collision-effects", "textures/clumps/large-1.png"), 16, 1.5F),
+		new SnowClumpType(new ResourceLocation("collision-effects", "textures/clumps/large-2.png"), 16, 1.5F),
+		new SnowClumpType(new ResourceLocation("collision-effects", "textures/clumps/large-3.png"), 16, 1.5F)
 	};
 
 	private static final class SnowClump {
@@ -55,18 +54,18 @@ public final class SnowClumps {
 		private float rotation;
 		private boolean flipX;
 		private boolean flipY;
-		private Identifier texture;
+		private ResourceLocation texture;
 		private int textureSize;
 		private long spawnTime;
 	}
 
 	private final List<SnowClump> clumps = new ArrayList<>();
 	private final Random random = new Random();
-	private @Nullable UUID lastHitSnowballId;
-	private Identifier lastSpawnTexture;
+	private UUID lastHitSnowballId;
+	private ResourceLocation lastSpawnTexture;
 
 	public void tickAndRender(
-		GuiGraphicsExtractor graphics,
+		GuiGraphics graphics,
 		long now,
 		float elapsedSeconds,
 		int width,
@@ -74,7 +73,7 @@ public final class SnowClumps {
 		boolean enabled,
 		boolean allowCurrentView,
 		boolean freezeForPause,
-		@Nullable Entity hitSnowball
+		Entity hitSnowball
 	) {
 		if (!enabled || !allowCurrentView) {
 			this.clear();
@@ -209,7 +208,7 @@ public final class SnowClumps {
 		return false;
 	}
 
-	private void renderClumps(GuiGraphicsExtractor graphics, long now) {
+	private void renderClumps(GuiGraphics graphics, long now) {
 		for (SnowClump clump : this.clumps) {
 			float age = (now - clump.spawnTime) / (float) CLUMP_LIFETIME_MS;
 			float alpha = 1.0F - age;
@@ -219,22 +218,22 @@ public final class SnowClumps {
 
 			int argb = ParticleVisuals.textureArgb(alpha);
 
-			Matrix3x2fStack matrices = graphics.pose();
-			matrices.pushMatrix();
-			matrices.translate(clump.x, clump.y);
+			PoseStack matrices = graphics.pose();
+			matrices.pushPose();
+			matrices.translate(clump.x, clump.y, 0.0F);
 
 			float half = clump.size / 2.0F;
 			float textureHalf = clump.textureSize / 2.0F;
 			float drawScale = clump.size / clump.textureSize;
-			matrices.translate(half, half);
+			matrices.translate(half, half, 0.0F);
 
-			matrices.scale(clump.flipX ? -1.0F : 1.0F, clump.flipY ? -1.0F : 1.0F);
-			matrices.rotate((float) Math.toRadians(clump.rotation));
-			matrices.scale(drawScale, drawScale);
-			matrices.translate(-textureHalf, -textureHalf);
+			matrices.scale(clump.flipX ? -1.0F : 1.0F, clump.flipY ? -1.0F : 1.0F, 1.0F);
+			matrices.mulPose(Axis.ZP.rotation((float) Math.toRadians(clump.rotation)));
+			matrices.scale(drawScale, drawScale, 1.0F);
+			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
 			graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				
 				Objects.requireNonNull(clump.texture),
 				0, 0,
 				0, 0,
@@ -243,7 +242,7 @@ public final class SnowClumps {
 				argb
 			);
 
-			matrices.popMatrix();
+			matrices.popPose();
 		}
 	}
 

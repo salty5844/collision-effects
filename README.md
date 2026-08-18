@@ -70,7 +70,6 @@
   - Snowball clumps
   - Spider splatters
   - Squid ink vignette
-  - Sulfur splatters
   - Wither vignette
 - **Water and Lava**
   - Entry effects

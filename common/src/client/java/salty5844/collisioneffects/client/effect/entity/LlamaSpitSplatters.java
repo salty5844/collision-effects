@@ -9,20 +9,19 @@ import salty5844.collisioneffects.client.util.GlobalParticleCapacity;
 import salty5844.collisioneffects.client.config.Config;
 
 
-import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import org.jspecify.annotations.NonNull;
 import java.util.UUID;
-import org.jspecify.annotations.Nullable;
 
 public final class LlamaSpitSplatters {
 
@@ -34,21 +33,21 @@ public final class LlamaSpitSplatters {
 	private static final int SPLATS_PER_TEXTURE = 5;
 	private static final float SLIDE_SPEED_PX_PER_SEC = 10.0F;
 
-	private record LlamaType(@NonNull Identifier texture, int textureSize, float exponentMultiplier) {}
+	private record LlamaType(ResourceLocation texture, int textureSize, float exponentMultiplier) {}
 
 	private static final LlamaType[] LLAMA_TYPES = new LlamaType[]{
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-small-1.png"), 16, 0.75F),
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-small-2.png"), 16, 0.75F),
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-small-3.png"), 16, 0.75F),
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-small-4.png"), 16, 0.75F),
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-medium-1.png"), 16, 1.0F),
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-medium-2.png"), 16, 1.0F),
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-medium-3.png"), 16, 1.0F),
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-medium-4.png"), 16, 1.0F),
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-large-1.png"), 16, 1.25F),
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-large-2.png"), 16, 1.25F),
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-large-3.png"), 16, 1.25F),
-		new LlamaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/llama/g-large-4.png"), 16, 1.25F)
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-small-1.png"), 16, 0.75F),
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-small-2.png"), 16, 0.75F),
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-small-3.png"), 16, 0.75F),
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-small-4.png"), 16, 0.75F),
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-medium-1.png"), 16, 1.0F),
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-medium-2.png"), 16, 1.0F),
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-medium-3.png"), 16, 1.0F),
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-medium-4.png"), 16, 1.0F),
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-large-1.png"), 16, 1.25F),
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-large-2.png"), 16, 1.25F),
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-large-3.png"), 16, 1.25F),
+		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-large-4.png"), 16, 1.25F)
 	};
 
 	private static final class LlamaSplat {
@@ -58,18 +57,18 @@ public final class LlamaSpitSplatters {
 		private float rotation;
 		private boolean flipX;
 		private boolean flipY;
-		private Identifier texture;
+		private ResourceLocation texture;
 		private int textureSize;
 		private long spawnTime;
 	}
 
 	private final List<LlamaSplat> splats = new ArrayList<>();
 	private final Random random = new Random();
-	private @Nullable UUID lastHitSpitId;
-	private Identifier lastSpawnTexture;
+	private UUID lastHitSpitId;
+	private ResourceLocation lastSpawnTexture;
 
 	public void tickAndRender(
-		GuiGraphicsExtractor graphics,
+		GuiGraphics graphics,
 		long now,
 		float elapsedSeconds,
 		int width,
@@ -77,7 +76,7 @@ public final class LlamaSpitSplatters {
 		boolean enabled,
 		boolean allowCurrentView,
 		boolean freezeForPause,
-		@Nullable Entity hitLlamaSpit
+		Entity hitLlamaSpit
 	) {
 		if (!enabled || !allowCurrentView) {
 			this.clear();
@@ -211,7 +210,7 @@ public final class LlamaSpitSplatters {
 		return false;
 	}
 
-	private void renderSplats(GuiGraphicsExtractor graphics, long now) {
+	private void renderSplats(GuiGraphics graphics, long now) {
 		for (LlamaSplat splat : this.splats) {
 			float age = (now - splat.spawnTime) / (float) SPLAT_LIFETIME_MS;
 			float alpha = 1.0F - age;
@@ -221,22 +220,22 @@ public final class LlamaSpitSplatters {
 
 			int argb = ParticleVisuals.textureArgb(alpha);
 
-			Matrix3x2fStack matrices = graphics.pose();
-			matrices.pushMatrix();
-			matrices.translate(splat.x, splat.y);
+			PoseStack matrices = graphics.pose();
+			matrices.pushPose();
+			matrices.translate(splat.x, splat.y, 0.0F);
 
 			float half = splat.size / 2.0F;
 			float textureHalf = splat.textureSize / 2.0F;
 			float drawScale = splat.size / splat.textureSize;
-			matrices.translate(half, half);
+			matrices.translate(half, half, 0.0F);
 
-			matrices.scale(splat.flipX ? -1.0F : 1.0F, splat.flipY ? -1.0F : 1.0F);
-			matrices.rotate((float) Math.toRadians(splat.rotation));
-			matrices.scale(drawScale, drawScale);
-			matrices.translate(-textureHalf, -textureHalf);
+			matrices.scale(splat.flipX ? -1.0F : 1.0F, splat.flipY ? -1.0F : 1.0F, 1.0F);
+			matrices.mulPose(Axis.ZP.rotation((float) Math.toRadians(splat.rotation)));
+			matrices.scale(drawScale, drawScale, 1.0F);
+			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
 			graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				
 				Objects.requireNonNull(splat.texture),
 				0, 0,
 				0, 0,
@@ -245,7 +244,7 @@ public final class LlamaSpitSplatters {
 				argb
 			);
 
-			matrices.popMatrix();
+			matrices.popPose();
 		}
 	}
 

@@ -64,8 +64,6 @@ public final class Config {
 		effectEnabled.put("lava_splatters", true);
 		effectEnabled.put("water_droplets", true);
 		effectEnabled.put("rain_droplets", true);
-		effectEnabled.put("sulfur_touch_splatters", true);
-		effectEnabled.put("sulfur_hit_splatters", true);
 		effectEnabled.put("magma_touch_splatters", true);
 		effectEnabled.put("magma_damaged_splatters", true);
 		effectEnabled.put("magma_hit_splatters", true);
@@ -222,11 +220,6 @@ public final class Config {
 		effectEnabled.put("lava_splatters", true);
 	}
 
-	public void resetSulfurDefaults() {
-		effectEnabled.put("sulfur_touch_splatters", true);
-		effectEnabled.put("sulfur_hit_splatters", true);
-	}
-
 	public void resetMagmaDefaults() {
 		effectEnabled.put("magma_touch_splatters", true);
 		effectEnabled.put("magma_damaged_splatters", true);
@@ -321,7 +314,6 @@ public final class Config {
 		effectEnabled.clear();
 		resetBugSplatterDefaults();
 		resetWaterRainDefaults();
-		resetSulfurDefaults();
 		resetMagmaDefaults();
 		resetSlimeDefaults();
 		resetSpiderDefaults();
@@ -384,8 +376,6 @@ public final class Config {
 			root.addProperty("lava_splatters", isEnabled("lava_splatters"));
 			root.addProperty("water_droplets", isEnabled("water_droplets"));
 			root.addProperty("rain_droplets", isEnabled("rain_droplets"));
-			root.addProperty("sulfur_touch_splatters", isEnabled("sulfur_touch_splatters"));
-			root.addProperty("sulfur_hit_splatters", isEnabled("sulfur_hit_splatters"));
 			root.addProperty("magma_touch_splatters", isEnabled("magma_touch_splatters"));
 			root.addProperty("magma_damaged_splatters", isEnabled("magma_damaged_splatters"));
 			root.addProperty("magma_hit_splatters", isEnabled("magma_hit_splatters"));
@@ -432,12 +422,6 @@ public final class Config {
 			}
 			if (root.has("rain_droplets")) {
 				setEnabled("rain_droplets", root.get("rain_droplets").getAsBoolean());
-			}
-			if (root.has("sulfur_touch_splatters")) {
-				setEnabled("sulfur_touch_splatters", root.get("sulfur_touch_splatters").getAsBoolean());
-			}
-			if (root.has("sulfur_hit_splatters")) {
-				setEnabled("sulfur_hit_splatters", root.get("sulfur_hit_splatters").getAsBoolean());
 			}
 			if (root.has("magma_touch_splatters")) {
 				setEnabled("magma_touch_splatters", root.get("magma_touch_splatters").getAsBoolean());
@@ -580,7 +564,7 @@ public final class Config {
 			String key = trimmed.substring(0, separator).trim();
 			String value = trimmed.substring(separator + 1).trim();
 			switch (key) {
-				case "bug_splatter", "lava_splatters", "water_droplets", "rain_droplets", "sulfur_touch_splatters", "sulfur_hit_splatters", "magma_touch_splatters", "magma_damaged_splatters", "magma_hit_splatters", "slime_touch_splatters", "slime_damaged_splatters", "slime_hit_splatters", "spider_splatters", "llama_spit", "squid_ink", "snowflakes", "snowball_clumps", "bee_pollen", "bee_pollen_hit", "bee_pollen_touch", "chicken_hit_feathers", "chicken_touch_feathers", "damage_tint", "damage_vingette", "health_tint", "explosion_flash", "explosion_debris", "wither_vingette" -> effectEnabled.put(key, Boolean.parseBoolean(value));
+				case "bug_splatter", "lava_splatters", "water_droplets", "rain_droplets", "magma_touch_splatters", "magma_damaged_splatters", "magma_hit_splatters", "slime_touch_splatters", "slime_damaged_splatters", "slime_hit_splatters", "spider_splatters", "llama_spit", "squid_ink", "snowflakes", "snowball_clumps", "bee_pollen", "bee_pollen_hit", "bee_pollen_touch", "chicken_hit_feathers", "chicken_touch_feathers", "damage_tint", "damage_vingette", "health_tint", "explosion_flash", "explosion_debris", "wither_vingette" -> effectEnabled.put(key, Boolean.parseBoolean(value));
 				case "chicken_feathers" -> {
 					boolean legacyChickenFeathers = Boolean.parseBoolean(value);
 					effectEnabled.put("chicken_hit_feathers", legacyChickenFeathers);
@@ -597,7 +581,7 @@ public final class Config {
 				case "third_person_effects" -> setThirdPersonEffectsEnabled(Boolean.parseBoolean(value));
 				case "swamp_multiplier" -> setSwampMultiplier(parseDoubleOrDefault(value, swampMultiplier));
 				case "jungle_multiplier" -> setJungleMultiplier(parseDoubleOrDefault(value, jungleMultiplier));
-				case "third_person_splats", "droplets_third_person", "sulfur_third_person", "slime_third_person", "spider_third_person", "llama_spit_third_person", "squid_ink_third_person", "snow_clumps_third_person", "water_third_person_splats", "rain_third_person_splats" -> {
+				case "third_person_splats", "droplets_third_person", "slime_third_person", "spider_third_person", "llama_spit_third_person", "squid_ink_third_person", "snow_clumps_third_person", "water_third_person_splats", "rain_third_person_splats" -> {
 					if (Boolean.parseBoolean(value)) {
 						setThirdPersonEffectsEnabled(true);
 					}
@@ -611,7 +595,6 @@ public final class Config {
 	private boolean legacyThirdPersonFlagEnabled(JsonObject root) {
 		return (root.has("third_person_splats") && root.get("third_person_splats").getAsBoolean())
 			|| (root.has("droplets_third_person") && root.get("droplets_third_person").getAsBoolean())
-			|| (root.has("sulfur_third_person") && root.get("sulfur_third_person").getAsBoolean())
 			|| (root.has("slime_third_person") && root.get("slime_third_person").getAsBoolean())
 			|| (root.has("spider_third_person") && root.get("spider_third_person").getAsBoolean())
 			|| (root.has("llama_spit_third_person") && root.get("llama_spit_third_person").getAsBoolean())

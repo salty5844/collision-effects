@@ -7,19 +7,18 @@ import salty5844.collisioneffects.client.util.GlobalParticleCapacity;
 import salty5844.collisioneffects.client.config.Config;
 
 
-import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 public final class ChickenFeathers {
 
@@ -33,12 +32,12 @@ public final class ChickenFeathers {
 	private static final double TOUCH_MOVE_TRIGGER_DISTANCE_SQR = 0.0009D;
 	private static final int FEATHERS_PER_HIT = 10;
 
-	private record FeatherType(@NonNull Identifier texture, int textureSize) {}
+	private record FeatherType(ResourceLocation texture, int textureSize) {}
 
 	private static final FeatherType[] FEATHER_TYPES = new FeatherType[]{
-		new FeatherType(Identifier.fromNamespaceAndPath("collision-effects", "textures/feather/small.png"), 16),
-		new FeatherType(Identifier.fromNamespaceAndPath("collision-effects", "textures/feather/medium.png"), 16),
-		new FeatherType(Identifier.fromNamespaceAndPath("collision-effects", "textures/feather/large.png"), 16)
+		new FeatherType(new ResourceLocation("collision-effects", "textures/feather/small.png"), 16),
+		new FeatherType(new ResourceLocation("collision-effects", "textures/feather/medium.png"), 16),
+		new FeatherType(new ResourceLocation("collision-effects", "textures/feather/large.png"), 16)
 	};
 
 	private static final class FeatherSplat {
@@ -48,7 +47,7 @@ public final class ChickenFeathers {
 		private float rotation;
 		private boolean flipX;
 		private boolean flipY;
-		private Identifier texture;
+		private ResourceLocation texture;
 		private int textureSize;
 		private long spawnTime;
 	}
@@ -67,7 +66,7 @@ public final class ChickenFeathers {
 	private long lastTouchMoveSpawnMillis = 0L;
 
 	public void tickAndRender(
-		GuiGraphicsExtractor graphics,
+		GuiGraphics graphics,
 		long now,
 		int width,
 		int height,
@@ -79,8 +78,8 @@ public final class ChickenFeathers {
 		double playerX,
 		double playerY,
 		double playerZ,
-		@Nullable Entity touchingChicken,
-		@Nullable Entity hitChicken
+		Entity touchingChicken,
+		Entity hitChicken
 	) {
 		if (!enabled || !allowCurrentView) {
 			this.clear();
@@ -257,7 +256,7 @@ public final class ChickenFeathers {
 		return false;
 	}
 
-	private void renderSplats(GuiGraphicsExtractor graphics, long now) {
+	private void renderSplats(GuiGraphics graphics, long now) {
 		for (FeatherSplat splat : this.splats) {
 			float age = (now - splat.spawnTime) / (float) FEATHER_LIFETIME_MS;
 			float alpha = 1.0F - age;
@@ -267,22 +266,22 @@ public final class ChickenFeathers {
 
 			int argb = ParticleVisuals.textureArgb(alpha);
 
-			Matrix3x2fStack matrices = graphics.pose();
-			matrices.pushMatrix();
-			matrices.translate(splat.x, splat.y);
+			PoseStack matrices = graphics.pose();
+			matrices.pushPose();
+			matrices.translate(splat.x, splat.y, 0.0F);
 
 			float half = splat.size / 2.0F;
 			float textureHalf = splat.textureSize / 2.0F;
 			float drawScale = splat.size / splat.textureSize;
-			matrices.translate(half, half);
+			matrices.translate(half, half, 0.0F);
 
-			matrices.scale(splat.flipX ? -1.0F : 1.0F, splat.flipY ? -1.0F : 1.0F);
-			matrices.rotate((float) Math.toRadians(splat.rotation));
-			matrices.scale(drawScale, drawScale);
-			matrices.translate(-textureHalf, -textureHalf);
+			matrices.scale(splat.flipX ? -1.0F : 1.0F, splat.flipY ? -1.0F : 1.0F, 1.0F);
+			matrices.mulPose(Axis.ZP.rotation((float) Math.toRadians(splat.rotation)));
+			matrices.scale(drawScale, drawScale, 1.0F);
+			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
 			graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				
 				Objects.requireNonNull(splat.texture),
 				0, 0,
 				0, 0,
@@ -291,7 +290,7 @@ public final class ChickenFeathers {
 				argb
 			);
 
-			matrices.popMatrix();
+			matrices.popPose();
 		}
 	}
 

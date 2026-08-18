@@ -1,14 +1,12 @@
 package salty5844.collisioneffects.client.util;
 
 
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.Function;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 public final class TextureSelection {
 
@@ -16,20 +14,20 @@ public final class TextureSelection {
 	}
 
 	@SuppressWarnings("nullness")
-	private static <T extends @NonNull Object> @NonNull T getNonNull(List<T> entries, int index) {
+	private static <T extends Object> T getNonNull(List<T> entries, int index) {
 		return Objects.requireNonNull(entries.get(index));
 	}
 
 	@SuppressWarnings("nullness")
-	private static <T extends @NonNull Object> @NonNull T removeNonNull(List<T> entries, int index) {
+	private static <T extends Object> T removeNonNull(List<T> entries, int index) {
 		return Objects.requireNonNull(entries.remove(index));
 	}
 
-	public static <T extends @NonNull Object> @Nullable T popRandomAvoidingRepeat(
-			List<@NonNull T> entries,
+	public static <T extends Object> T popRandomAvoidingRepeat(
+			List<T> entries,
 		Random random,
-		@Nullable Identifier lastTexture,
-			Function<T, Identifier> textureResolver
+		ResourceLocation lastTexture,
+			Function<T, ResourceLocation> textureResolver
 	) {
 		if (entries.isEmpty()) {
 			return null;

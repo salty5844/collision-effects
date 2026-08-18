@@ -9,17 +9,17 @@ import salty5844.collisioneffects.client.util.GlobalParticleCapacity;
 import salty5844.collisioneffects.client.config.Config;
 
 
-import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import org.jspecify.annotations.NonNull;
 
 public final class RainDrops {
 
@@ -46,17 +46,17 @@ public final class RainDrops {
 	private static final double CONVERT_MAX_SPEED = 0.4D;
 	private static final float MAX_CONVERT_RATE = 3.0F; // stream drops converted to splashes per second at peak
 
-	private record RainDropType(@NonNull Identifier texture, int textureSize, float exponentMultiplier) {}
+	private record RainDropType(ResourceLocation texture, int textureSize, float exponentMultiplier) {}
 
 	private static final RainDropType[] SPLASH_TYPES = new RainDropType[]{
-		new RainDropType(Identifier.fromNamespaceAndPath("collision-effects", "textures/splashes/small.png"), 16, 1.0F),
-		new RainDropType(Identifier.fromNamespaceAndPath("collision-effects", "textures/splashes/medium.png"), 16, 1.25F),
-		new RainDropType(Identifier.fromNamespaceAndPath("collision-effects", "textures/splashes/large.png"), 16, 1.5F)
+		new RainDropType(new ResourceLocation("collision-effects", "textures/splashes/small.png"), 16, 1.0F),
+		new RainDropType(new ResourceLocation("collision-effects", "textures/splashes/medium.png"), 16, 1.25F),
+		new RainDropType(new ResourceLocation("collision-effects", "textures/splashes/large.png"), 16, 1.5F)
 	};
 
 	private static final RainDropType[] STREAM_TYPES = new RainDropType[]{
-		new RainDropType(Identifier.fromNamespaceAndPath("collision-effects", "textures/drops/1.png"), 16, 1.0F),
-		new RainDropType(Identifier.fromNamespaceAndPath("collision-effects", "textures/drops/2.png"), 16, 1.0F)
+		new RainDropType(new ResourceLocation("collision-effects", "textures/drops/1.png"), 16, 1.0F),
+		new RainDropType(new ResourceLocation("collision-effects", "textures/drops/2.png"), 16, 1.0F)
 	};
 
 	private static final class RainDrop {
@@ -68,7 +68,7 @@ public final class RainDrops {
 		private float rotation;
 		private boolean flipX;
 		private boolean flipY;
-		private Identifier texture;
+		private ResourceLocation texture;
 		private int textureSize;
 		private long lifetimeMs;
 		private long spawnTime;
@@ -81,10 +81,10 @@ public final class RainDrops {
 	private final Random random = new Random();
 	private float spawnAccumulator = 0.0F;
 	private float convertAccumulator = 0.0F;
-	private Identifier lastSpawnTexture;
+	private ResourceLocation lastSpawnTexture;
 
 	public void tickAndRender(
-		GuiGraphicsExtractor graphics,
+		GuiGraphics graphics,
 		long now,
 		float elapsedSeconds,
 		int width,
@@ -182,7 +182,7 @@ public final class RainDrops {
 		drop.size = splashType.textureSize() * 2.5F;
 	}
 
-	private void renderDrops(GuiGraphicsExtractor graphics, long now) {
+	private void renderDrops(GuiGraphics graphics, long now) {
 		for (RainDrop drop : this.drops) {
 			float age = (now - drop.spawnTime) / (float) drop.lifetimeMs;
 			float alpha = 1.0F - age;
@@ -192,22 +192,22 @@ public final class RainDrops {
 
 			int argb = ParticleVisuals.textureArgb(alpha);
 
-			Matrix3x2fStack matrices = graphics.pose();
-			matrices.pushMatrix();
-			matrices.translate(drop.x, drop.y);
+			PoseStack matrices = graphics.pose();
+			matrices.pushPose();
+			matrices.translate(drop.x, drop.y, 0.0F);
 
 			float half = drop.size / 2.0F;
 			float textureHalf = drop.textureSize / 2.0F;
 			float drawScale = drop.size / drop.textureSize;
-			matrices.translate(half, half);
+			matrices.translate(half, half, 0.0F);
 
-			matrices.scale(drop.flipX ? -1.0F : 1.0F, drop.flipY ? -1.0F : 1.0F);
-			matrices.rotate((float) Math.toRadians(drop.rotation));
-			matrices.scale(drawScale, drawScale);
-			matrices.translate(-textureHalf, -textureHalf);
+			matrices.scale(drop.flipX ? -1.0F : 1.0F, drop.flipY ? -1.0F : 1.0F, 1.0F);
+			matrices.mulPose(Axis.ZP.rotation((float) Math.toRadians(drop.rotation)));
+			matrices.scale(drawScale, drawScale, 1.0F);
+			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
 			graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				
 				Objects.requireNonNull(drop.texture),
 				0, 0,
 				0, 0,
@@ -216,7 +216,7 @@ public final class RainDrops {
 				argb
 			);
 
-			matrices.popMatrix();
+			matrices.popPose();
 		}
 	}
 
@@ -332,7 +332,7 @@ public final class RainDrops {
 		if (types.length == 0) {
 			return null;
 		}
-		List<@NonNull RainDropType> weightedTypes = new ArrayList<>();
+		List<RainDropType> weightedTypes = new ArrayList<>();
 		for (RainDropType type : types) {
 			weightedTypes.add(Objects.requireNonNull(type));
 		}

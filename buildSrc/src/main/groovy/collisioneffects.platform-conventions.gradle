@@ -1,23 +1,39 @@
 plugins {
-    id 'collisioneffects.base-conventions'
-    id 'java-library'
-    id 'maven-publish'
+    id 'java'
 }
 
 java {
-    withSourcesJar()
-}
-
-jar {
-    from(rootProject.file('LICENSE')) {
-        rename { "${it}_${rootProject.name}-${project.name}" }
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
-publishing {
-    publications {
-        create('mavenJava', MavenPublication) {
-            from components.java
-        }
+repositories {
+    mavenCentral()
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+    maven {
+        name = 'Forge'
+        url = 'https://maven.minecraftforge.net/'
+    }
+    maven {
+        name = 'Terraformers'
+        url = 'https://maven.terraformersmc.com/'
+    }
+    gradlePluginPortal()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+subprojects {
+    group = rootProject.findProperty('maven_group')
+    version = rootProject.findProperty('mod_version')
+
+    tasks.withType(AbstractArchiveTask).configureEach {
+        archiveBaseName = "${rootProject.name}-${project.name}"
     }
 }

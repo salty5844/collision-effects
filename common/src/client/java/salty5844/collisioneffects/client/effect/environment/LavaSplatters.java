@@ -9,17 +9,17 @@ import salty5844.collisioneffects.client.util.GlobalParticleCapacity;
 import salty5844.collisioneffects.client.config.Config;
 
 
-import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import org.jspecify.annotations.NonNull;
 
 public final class LavaSplatters {
 
@@ -31,21 +31,21 @@ public final class LavaSplatters {
 	private static final float SURFACE_SPAWN_RATE = 8.0F;
 	private static final int BURST_COUNT_PER_TEXTURE = 2;
 
-	private record LavaType(@NonNull Identifier texture, int textureSize, float exponentMultiplier) {}
+	private record LavaType(ResourceLocation texture, int textureSize, float exponentMultiplier) {}
 
 	private static final LavaType[] SPLAT_TYPES = new LavaType[]{
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-small-1.png"), 16, 1.0F),
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-small-2.png"), 16, 1.0F),
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-small-3.png"), 16, 1.0F),
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-small-4.png"), 16, 1.0F),
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-medium-1.png"), 16, 1.0F),
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-medium-2.png"), 16, 1.0F),
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-medium-3.png"), 16, 1.0F),
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-medium-4.png"), 16, 1.0F),
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-large-1.png"), 16, 1.0F),
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-large-2.png"), 16, 1.0F),
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-large-3.png"), 16, 1.0F),
-		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-large-4.png"), 16, 1.0F)
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-small-1.png"), 16, 1.0F),
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-small-2.png"), 16, 1.0F),
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-small-3.png"), 16, 1.0F),
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-small-4.png"), 16, 1.0F),
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-medium-1.png"), 16, 1.0F),
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-medium-2.png"), 16, 1.0F),
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-medium-3.png"), 16, 1.0F),
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-medium-4.png"), 16, 1.0F),
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-large-1.png"), 16, 1.0F),
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-large-2.png"), 16, 1.0F),
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-large-3.png"), 16, 1.0F),
+		new LavaType(new ResourceLocation("collision-effects", "textures/magma/g-large-4.png"), 16, 1.0F)
 	};
 
 	private static final class LavaSplat {
@@ -55,7 +55,7 @@ public final class LavaSplatters {
 		private float rotation;
 		private boolean flipX;
 		private boolean flipY;
-		private Identifier texture;
+		private ResourceLocation texture;
 		private int textureSize;
 		private long spawnTime;
 	}
@@ -64,10 +64,10 @@ public final class LavaSplatters {
 	private final Random random = new Random();
 	private boolean wasInLava = false;
 	private float surfaceSpawnAccumulator = 0.0F;
-	private Identifier lastSpawnTexture;
+	private ResourceLocation lastSpawnTexture;
 
 	public void tickAndRender(
-		GuiGraphicsExtractor graphics,
+		GuiGraphics graphics,
 		long now,
 		float elapsedSeconds,
 		int width,
@@ -121,7 +121,7 @@ public final class LavaSplatters {
 		renderSplats(graphics, now);
 	}
 
-	private void renderSplats(GuiGraphicsExtractor graphics, long now) {
+	private void renderSplats(GuiGraphics graphics, long now) {
 		for (LavaSplat splat : this.splats) {
 			float age = (now - splat.spawnTime) / (float) SPLAT_LIFETIME_MS;
 			float alpha = 1.0F - age;
@@ -131,22 +131,22 @@ public final class LavaSplatters {
 
 			int argb = ParticleVisuals.textureArgb(alpha);
 
-			Matrix3x2fStack matrices = graphics.pose();
-			matrices.pushMatrix();
-			matrices.translate(splat.x, splat.y);
+			PoseStack matrices = graphics.pose();
+			matrices.pushPose();
+			matrices.translate(splat.x, splat.y, 0.0F);
 
 			float half = splat.size / 2.0F;
 			float textureHalf = splat.textureSize / 2.0F;
 			float drawScale = splat.size / splat.textureSize;
-			matrices.translate(half, half);
+			matrices.translate(half, half, 0.0F);
 
-			matrices.scale(splat.flipX ? -1.0F : 1.0F, splat.flipY ? -1.0F : 1.0F);
-			matrices.rotate((float) Math.toRadians(splat.rotation));
-			matrices.scale(drawScale, drawScale);
-			matrices.translate(-textureHalf, -textureHalf);
+			matrices.scale(splat.flipX ? -1.0F : 1.0F, splat.flipY ? -1.0F : 1.0F, 1.0F);
+			matrices.mulPose(Axis.ZP.rotation((float) Math.toRadians(splat.rotation)));
+			matrices.scale(drawScale, drawScale, 1.0F);
+			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
 			graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				
 				Objects.requireNonNull(splat.texture),
 				0, 0,
 				0, 0,
@@ -155,7 +155,7 @@ public final class LavaSplatters {
 				argb
 			);
 
-			matrices.popMatrix();
+			matrices.popPose();
 		}
 	}
 
@@ -258,7 +258,7 @@ public final class LavaSplatters {
 		if (SPLAT_TYPES.length == 0) {
 			return null;
 		}
-		List<@NonNull LavaType> weightedTypes = new ArrayList<>();
+		List<LavaType> weightedTypes = new ArrayList<>();
 		for (LavaType splatType : SPLAT_TYPES) {
 			for (int i = 0; i < ParticleVisuals.filenameSizeWeight(splatType.texture()); i++) {
 				weightedTypes.add(splatType);

@@ -7,17 +7,17 @@ import salty5844.collisioneffects.client.util.GlobalParticleCapacity;
 import salty5844.collisioneffects.client.config.Config;
 
 
-import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import org.jspecify.annotations.NonNull;
 
 public final class Snowflakes {
 
@@ -33,12 +33,12 @@ public final class Snowflakes {
 	private static final double DESCENT_FULL_SPEED = 1.1D;
 	private static final float GLOBAL_SNOW_RATE_MULTIPLIER = 0.65F;
 
-	private record SnowflakeType(@NonNull Identifier texture, int textureSize, float exponentMultiplier) {}
+	private record SnowflakeType(ResourceLocation texture, int textureSize, float exponentMultiplier) {}
 
 	private static final SnowflakeType[] FLAKE_TYPES = new SnowflakeType[]{
-		new SnowflakeType(Identifier.fromNamespaceAndPath("collision-effects", "textures/flakes/small.png"), 16, 1.0F),
-		new SnowflakeType(Identifier.fromNamespaceAndPath("collision-effects", "textures/flakes/medium.png"), 16, 1.25F),
-		new SnowflakeType(Identifier.fromNamespaceAndPath("collision-effects", "textures/flakes/large.png"), 16, 1.5F)
+		new SnowflakeType(new ResourceLocation("collision-effects", "textures/flakes/small.png"), 16, 1.0F),
+		new SnowflakeType(new ResourceLocation("collision-effects", "textures/flakes/medium.png"), 16, 1.25F),
+		new SnowflakeType(new ResourceLocation("collision-effects", "textures/flakes/large.png"), 16, 1.5F)
 	};
 
 	private static final class Snowflake {
@@ -48,7 +48,7 @@ public final class Snowflakes {
 		private float rotation;
 		private boolean flipX;
 		private boolean flipY;
-		private Identifier texture;
+		private ResourceLocation texture;
 		private int textureSize;
 		private long spawnTime;
 	}
@@ -58,7 +58,7 @@ public final class Snowflakes {
 	private float spawnAccumulator = 0.0F;
 
 	public void tickAndRender(
-		GuiGraphicsExtractor graphics,
+		GuiGraphics graphics,
 		long now,
 		float elapsedSeconds,
 		int width,
@@ -237,7 +237,7 @@ public final class Snowflakes {
 		return weightedTypes.get(random.nextInt(weightedTypes.size()));
 	}
 
-	private void renderFlakes(GuiGraphicsExtractor graphics, long now) {
+	private void renderFlakes(GuiGraphics graphics, long now) {
 		for (Snowflake flake : this.flakes) {
 			float age = (now - flake.spawnTime) / (float) FLAKE_LIFETIME_MS;
 			float alpha = 1.0F - age;
@@ -247,22 +247,22 @@ public final class Snowflakes {
 
 			int argb = ParticleVisuals.textureArgb(alpha);
 
-			Matrix3x2fStack matrices = graphics.pose();
-			matrices.pushMatrix();
-			matrices.translate(flake.x, flake.y);
+			PoseStack matrices = graphics.pose();
+			matrices.pushPose();
+			matrices.translate(flake.x, flake.y, 0.0F);
 
 			float half = flake.size / 2.0F;
 			float textureHalf = flake.textureSize / 2.0F;
 			float drawScale = flake.size / flake.textureSize;
-			matrices.translate(half, half);
+			matrices.translate(half, half, 0.0F);
 
-			matrices.scale(flake.flipX ? -1.0F : 1.0F, flake.flipY ? -1.0F : 1.0F);
-			matrices.rotate((float) Math.toRadians(flake.rotation));
-			matrices.scale(drawScale, drawScale);
-			matrices.translate(-textureHalf, -textureHalf);
+			matrices.scale(flake.flipX ? -1.0F : 1.0F, flake.flipY ? -1.0F : 1.0F, 1.0F);
+			matrices.mulPose(Axis.ZP.rotation((float) Math.toRadians(flake.rotation)));
+			matrices.scale(drawScale, drawScale, 1.0F);
+			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
 			graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				
 				Objects.requireNonNull(flake.texture),
 				0, 0,
 				0, 0,
@@ -271,7 +271,7 @@ public final class Snowflakes {
 				argb
 			);
 
-			matrices.popMatrix();
+			matrices.popPose();
 		}
 	}
 

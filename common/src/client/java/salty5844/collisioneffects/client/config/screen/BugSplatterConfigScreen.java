@@ -12,7 +12,7 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -20,11 +20,8 @@ import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 public final class BugSplatterConfigScreen extends Screen {
 
@@ -148,17 +145,15 @@ public final class BugSplatterConfigScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean captured) {
-		double mouseX = event.x();
-		double mouseY = event.y();
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (mouseX < 8 || mouseX > this.width - 8 || mouseY < 8 || mouseY > this.height - 8) {
 			return true;
 		}
-		return super.mouseClicked(event, captured);
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
 	private CycleButton<Boolean> addToggleRow(String label, boolean initialValue, int rowX, int rowY, int labelWidth, BooleanValueConsumer onChange) {
-		@NonNull String displayLabel = requireNonNullString(label);
+		String displayLabel = requireNonNullString(label);
 		this.addRenderableWidget(new StringWidget(rowX, rowY, labelWidth, 20, Component.literal(displayLabel), this.font));
 		CycleButton<Boolean> toggle = CycleButton.onOffBuilder(initialValue)
 			.displayOnlyValue()
@@ -179,7 +174,7 @@ public final class BugSplatterConfigScreen extends Screen {
 		IntConsumer setter,
 		List<AbstractWidget> dependentWidgets
 	) {
-		@NonNull String displayLabel = requireNonNullString(label);
+		String displayLabel = requireNonNullString(label);
 		this.addRenderableWidget(new StringWidget(rowX, rowY, labelWidth, 20, Component.literal(displayLabel), this.font));
 		EditBox valueBox = new EditBox(this.font, rowX + labelWidth + LABEL_TO_VALUE_GAP, rowY, VALUE_BOX_WIDTH, 20, Component.literal(displayLabel));
 		IntegerSlider slider = new IntegerSlider(
@@ -229,7 +224,7 @@ public final class BugSplatterConfigScreen extends Screen {
 		DoubleConsumer setter,
 		List<AbstractWidget> dependentWidgets
 	) {
-		@NonNull String displayLabel = requireNonNullString(label);
+		String displayLabel = requireNonNullString(label);
 		this.addRenderableWidget(new StringWidget(rowX, rowY, labelWidth, 20, Component.literal(displayLabel), this.font));
 		EditBox valueBox = new EditBox(this.font, rowX + labelWidth + LABEL_TO_VALUE_GAP, rowY, VALUE_BOX_WIDTH, 20, Component.literal(displayLabel));
 		DecimalSlider slider = new DecimalSlider(
@@ -278,18 +273,18 @@ public final class BugSplatterConfigScreen extends Screen {
 	@Override
 	public void onClose() {
 		if (this.minecraft != null && parent != null) {
-			this.minecraft.setScreenAndShow(parent);
+			this.minecraft.setScreen(parent);
 			return;
 		}
 		super.onClose();
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.render(graphics, mouseX, mouseY, partialTick);
 	}
 
-	private static @NonNull String requireNonNullString(@Nullable String value) {
+	private static String requireNonNullString(String value) {
 		if (value == null) {
 			return "";
 		}
@@ -301,7 +296,7 @@ public final class BugSplatterConfigScreen extends Screen {
 		return Math.round(value * scale) / scale;
 	}
 
-	private static @NonNull String formatDecimal(double value, int precision) {
+	private static String formatDecimal(double value, int precision) {
 		return requireNonNullString(String.format(Locale.ROOT, "%1$." + precision + "f", value));
 	}
 

@@ -9,17 +9,17 @@ import salty5844.collisioneffects.client.util.GlobalParticleCapacity;
 import salty5844.collisioneffects.client.config.Config;
 
 
-import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import org.jspecify.annotations.NonNull;
 
 public final class ExplosionFlash {
 
@@ -31,18 +31,18 @@ public final class ExplosionFlash {
 	private static final float SOOT_OVERLAP_PADDING = 25.0F;
 	private static final int SOOT_PER_TEXTURE = 2;
 
-	private record SootType(@NonNull Identifier texture, int textureSize, float exponentMultiplier) {}
+	private record SootType(ResourceLocation texture, int textureSize, float exponentMultiplier) {}
 
 	private static final SootType[] SOOT_TYPES = new SootType[]{
-		new SootType(Identifier.fromNamespaceAndPath("collision-effects", "textures/explosion/small-1.png"), 16, 0.75F),
-		new SootType(Identifier.fromNamespaceAndPath("collision-effects", "textures/explosion/small-2.png"), 16, 0.75F),
-		new SootType(Identifier.fromNamespaceAndPath("collision-effects", "textures/explosion/small-3.png"), 16, 0.75F),
-		new SootType(Identifier.fromNamespaceAndPath("collision-effects", "textures/explosion/medium-1.png"), 16, 1.0F),
-		new SootType(Identifier.fromNamespaceAndPath("collision-effects", "textures/explosion/medium-2.png"), 16, 1.0F),
-		new SootType(Identifier.fromNamespaceAndPath("collision-effects", "textures/explosion/medium-3.png"), 16, 1.0F),
-		new SootType(Identifier.fromNamespaceAndPath("collision-effects", "textures/explosion/large-1.png"), 16, 1.25F),
-		new SootType(Identifier.fromNamespaceAndPath("collision-effects", "textures/explosion/large-2.png"), 16, 1.25F),
-		new SootType(Identifier.fromNamespaceAndPath("collision-effects", "textures/explosion/large-3.png"), 16, 1.25F)
+		new SootType(new ResourceLocation("collision-effects", "textures/explosion/small-1.png"), 16, 0.75F),
+		new SootType(new ResourceLocation("collision-effects", "textures/explosion/small-2.png"), 16, 0.75F),
+		new SootType(new ResourceLocation("collision-effects", "textures/explosion/small-3.png"), 16, 0.75F),
+		new SootType(new ResourceLocation("collision-effects", "textures/explosion/medium-1.png"), 16, 1.0F),
+		new SootType(new ResourceLocation("collision-effects", "textures/explosion/medium-2.png"), 16, 1.0F),
+		new SootType(new ResourceLocation("collision-effects", "textures/explosion/medium-3.png"), 16, 1.0F),
+		new SootType(new ResourceLocation("collision-effects", "textures/explosion/large-1.png"), 16, 1.25F),
+		new SootType(new ResourceLocation("collision-effects", "textures/explosion/large-2.png"), 16, 1.25F),
+		new SootType(new ResourceLocation("collision-effects", "textures/explosion/large-3.png"), 16, 1.25F)
 	};
 
 	private static final class SootSplat {
@@ -52,7 +52,7 @@ public final class ExplosionFlash {
 		private float rotation;
 		private boolean flipX;
 		private boolean flipY;
-		private Identifier texture;
+		private ResourceLocation texture;
 		private int textureSize;
 		private long spawnTime;
 	}
@@ -60,10 +60,10 @@ public final class ExplosionFlash {
 	private final List<SootSplat> sootSplats = new ArrayList<>();
 	private final Random random = new Random();
 	private long whiteFlashStartMillis = -1L;
-	private Identifier lastSpawnTexture;
+	private ResourceLocation lastSpawnTexture;
 
 	public void tickAndRender(
-		GuiGraphicsExtractor graphics,
+		GuiGraphics graphics,
 		long now,
 		int width,
 		int height,
@@ -220,7 +220,7 @@ public final class ExplosionFlash {
 		return false;
 	}
 
-	private void renderSoot(GuiGraphicsExtractor graphics, long now) {
+	private void renderSoot(GuiGraphics graphics, long now) {
 		for (SootSplat splat : sootSplats) {
 			long ageMs = now - splat.spawnTime;
 			if (ageMs >= SOOT_FADE_MS) {
@@ -230,22 +230,22 @@ public final class ExplosionFlash {
 			float alpha = 1.0F - (ageMs / (float) SOOT_FADE_MS);
 			int argb = ParticleVisuals.textureArgb(alpha);
 
-			Matrix3x2fStack matrices = graphics.pose();
-			matrices.pushMatrix();
-			matrices.translate(splat.x, splat.y);
+			PoseStack matrices = graphics.pose();
+			matrices.pushPose();
+			matrices.translate(splat.x, splat.y, 0.0F);
 
 			float half = splat.size / 2.0F;
 			float textureHalf = splat.textureSize / 2.0F;
 			float drawScale = splat.size / splat.textureSize;
-			matrices.translate(half, half);
+			matrices.translate(half, half, 0.0F);
 
-			matrices.scale(splat.flipX ? -1.0F : 1.0F, splat.flipY ? -1.0F : 1.0F);
-			matrices.rotate((float) Math.toRadians(splat.rotation));
-			matrices.scale(drawScale, drawScale);
-			matrices.translate(-textureHalf, -textureHalf);
+			matrices.scale(splat.flipX ? -1.0F : 1.0F, splat.flipY ? -1.0F : 1.0F, 1.0F);
+			matrices.mulPose(Axis.ZP.rotation((float) Math.toRadians(splat.rotation)));
+			matrices.scale(drawScale, drawScale, 1.0F);
+			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
 			graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				
 				Objects.requireNonNull(splat.texture),
 				0, 0,
 				0, 0,
@@ -254,11 +254,11 @@ public final class ExplosionFlash {
 				argb
 			);
 
-			matrices.popMatrix();
+			matrices.popPose();
 		}
 	}
 
-	private void renderWhiteFlash(GuiGraphicsExtractor graphics, long now, int width, int height) {
+	private void renderWhiteFlash(GuiGraphics graphics, long now, int width, int height) {
 		if (whiteFlashStartMillis < 0L || width <= 0 || height <= 0) {
 			return;
 		}

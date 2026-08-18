@@ -1,12 +1,12 @@
 plugins {
 	id 'collisioneffects.platform-conventions'
-	id 'net.minecraftforge.gradle' version '[7.0.17,8)'
+	id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
 version = project.version
 group = project.group
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 sourceSets.main.resources {
 	srcDir '../common/src/main/resources'
@@ -18,32 +18,37 @@ sourceSets.main.java {
 }
 
 minecraft {
+	mappings channel: 'official', version: '1.20'
+
 	runs {
 		configureEach {
-			workingDir = layout.projectDirectory.dir('run')
-			systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+			workingDirectory project.file('run')
+			property 'eventbus.api.strictRuntimeChecks', 'true'
 			// Mixin only reads configs from the jar manifest, so the dev run needs this passed explicitly.
 			args '--mixin.config=collision-effects.mixins.json'
 		}
 
-		register('client')
+		client {
+			workingDirectory project.file('run')
+		}
 
-		register('server') {
+		server {
+			workingDirectory project.file('run')
 			args '--nogui'
 		}
 	}
 }
 
 repositories {
-	minecraft.mavenizer(it)
-	maven fg.forgeMaven
-	maven fg.minecraftLibsMaven
+	maven {
+		name = 'Forge'
+		url = 'https://maven.minecraftforge.net/'
+	}
 	mavenCentral()
 }
 
 dependencies {
-	implementation minecraft.dependency("net.minecraftforge:forge:${project.forge_version}")
-	annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.5'
+	minecraft "net.minecraftforge:forge:${project.forge_version}"
 }
 
 tasks.named('jar', Jar) {

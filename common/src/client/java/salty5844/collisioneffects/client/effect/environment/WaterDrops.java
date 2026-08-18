@@ -9,17 +9,17 @@ import salty5844.collisioneffects.client.util.GlobalParticleCapacity;
 import salty5844.collisioneffects.client.config.Config;
 
 
-import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import org.jspecify.annotations.NonNull;
 
 public final class WaterDrops {
 
@@ -31,12 +31,12 @@ public final class WaterDrops {
 	private static final float SURFACE_SPAWN_RATE = 8.0F;
 	private static final int BURST_COUNT_PER_TEXTURE = 3;
 
-	private record WaterDropType(@NonNull Identifier texture, int textureSize, float exponentMultiplier) {}
+	private record WaterDropType(ResourceLocation texture, int textureSize, float exponentMultiplier) {}
 
 	private static final WaterDropType[] DROP_TYPES = new WaterDropType[]{
-		new WaterDropType(Identifier.fromNamespaceAndPath("collision-effects", "textures/splashes/small.png"), 16, 1.0F),
-		new WaterDropType(Identifier.fromNamespaceAndPath("collision-effects", "textures/splashes/medium.png"), 16, 1.0F),
-		new WaterDropType(Identifier.fromNamespaceAndPath("collision-effects", "textures/splashes/large.png"), 16, 1.0F)
+		new WaterDropType(new ResourceLocation("collision-effects", "textures/splashes/small.png"), 16, 1.0F),
+		new WaterDropType(new ResourceLocation("collision-effects", "textures/splashes/medium.png"), 16, 1.0F),
+		new WaterDropType(new ResourceLocation("collision-effects", "textures/splashes/large.png"), 16, 1.0F)
 	};
 
 	private static final class WaterDrop {
@@ -46,7 +46,7 @@ public final class WaterDrops {
 		private float rotation;
 		private boolean flipX;
 		private boolean flipY;
-		private Identifier texture;
+		private ResourceLocation texture;
 		private int textureSize;
 		private long spawnTime;
 	}
@@ -55,10 +55,10 @@ public final class WaterDrops {
 	private final Random random = new Random();
 	private boolean wasInWater = false;
 	private float surfaceSpawnAccumulator = 0.0F;
-	private Identifier lastSpawnTexture;
+	private ResourceLocation lastSpawnTexture;
 
 	public void tickAndRender(
-		GuiGraphicsExtractor graphics,
+		GuiGraphics graphics,
 		long now,
 		float elapsedSeconds,
 		int width,
@@ -113,7 +113,7 @@ public final class WaterDrops {
 		renderDrops(graphics, now);
 	}
 
-	private void renderDrops(GuiGraphicsExtractor graphics, long now) {
+	private void renderDrops(GuiGraphics graphics, long now) {
 		for (WaterDrop drop : this.drops) {
 			float age = (now - drop.spawnTime) / (float) DROP_LIFETIME_MS;
 			float alpha = 1.0F - age;
@@ -123,22 +123,22 @@ public final class WaterDrops {
 
 			int argb = ParticleVisuals.textureArgb(alpha);
 
-			Matrix3x2fStack matrices = graphics.pose();
-			matrices.pushMatrix();
-			matrices.translate(drop.x, drop.y);
+			PoseStack matrices = graphics.pose();
+			matrices.pushPose();
+			matrices.translate(drop.x, drop.y, 0.0F);
 
 			float half = drop.size / 2.0F;
 			float textureHalf = drop.textureSize / 2.0F;
 			float drawScale = drop.size / drop.textureSize;
-			matrices.translate(half, half);
+			matrices.translate(half, half, 0.0F);
 
-			matrices.scale(drop.flipX ? -1.0F : 1.0F, drop.flipY ? -1.0F : 1.0F);
-			matrices.rotate((float) Math.toRadians(drop.rotation));
-			matrices.scale(drawScale, drawScale);
-			matrices.translate(-textureHalf, -textureHalf);
+			matrices.scale(drop.flipX ? -1.0F : 1.0F, drop.flipY ? -1.0F : 1.0F, 1.0F);
+			matrices.mulPose(Axis.ZP.rotation((float) Math.toRadians(drop.rotation)));
+			matrices.scale(drawScale, drawScale, 1.0F);
+			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
 			graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				
 				Objects.requireNonNull(drop.texture),
 				0, 0,
 				0, 0,
@@ -147,7 +147,7 @@ public final class WaterDrops {
 				argb
 			);
 
-			matrices.popMatrix();
+			matrices.popPose();
 		}
 	}
 
@@ -250,7 +250,7 @@ public final class WaterDrops {
 		if (DROP_TYPES.length == 0) {
 			return null;
 		}
-		List<@NonNull WaterDropType> weightedTypes = new ArrayList<>();
+		List<WaterDropType> weightedTypes = new ArrayList<>();
 		for (WaterDropType dropType : DROP_TYPES) {
 			for (int i = 0; i < ParticleVisuals.filenameSizeWeight(dropType.texture()); i++) {
 				weightedTypes.add(dropType);

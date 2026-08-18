@@ -9,19 +9,18 @@ import salty5844.collisioneffects.client.util.GlobalParticleCapacity;
 import salty5844.collisioneffects.client.config.Config;
 
 
-import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 public final class SpiderSplatters {
 
@@ -34,21 +33,21 @@ public final class SpiderSplatters {
 	private static final int SPLATS_PER_TEXTURE = 4;
 	private static final float SLIDE_SPEED_PX_PER_SEC = 10.0F;
 
-	private record SpiderType(@NonNull Identifier texture, int textureSize, float exponentMultiplier) {}
+	private record SpiderType(ResourceLocation texture, int textureSize, float exponentMultiplier) {}
 
 	private static final SpiderType[] SPIDER_TYPES = new SpiderType[]{
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-small-1.png"), 16, 0.75F),
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-small-2.png"), 16, 0.75F),
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-small-3.png"), 16, 0.75F),
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-small-4.png"), 16, 0.75F),
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-medium-1.png"), 16, 1.0F),
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-medium-2.png"), 16, 1.0F),
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-medium-3.png"), 16, 1.0F),
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-medium-4.png"), 16, 1.0F),
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-large-1.png"), 16, 1.25F),
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-large-2.png"), 16, 1.25F),
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-large-3.png"), 16, 1.25F),
-		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-large-4.png"), 16, 1.25F)
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-small-1.png"), 16, 0.75F),
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-small-2.png"), 16, 0.75F),
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-small-3.png"), 16, 0.75F),
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-small-4.png"), 16, 0.75F),
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-medium-1.png"), 16, 1.0F),
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-medium-2.png"), 16, 1.0F),
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-medium-3.png"), 16, 1.0F),
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-medium-4.png"), 16, 1.0F),
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-large-1.png"), 16, 1.25F),
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-large-2.png"), 16, 1.25F),
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-large-3.png"), 16, 1.25F),
+		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-large-4.png"), 16, 1.25F)
 	};
 
 	private static final class SpiderSplat {
@@ -58,7 +57,7 @@ public final class SpiderSplatters {
 		private float rotation;
 		private boolean flipX;
 		private boolean flipY;
-		private Identifier texture;
+		private ResourceLocation texture;
 		private int textureSize;
 		private long spawnTime;
 	}
@@ -66,10 +65,10 @@ public final class SpiderSplatters {
 	private final List<SpiderSplat> splats = new ArrayList<>();
 	private final Random random = new Random();
 	private long lastHitSpawnMillis = 0L;
-	private Identifier lastSpawnTexture;
+	private ResourceLocation lastSpawnTexture;
 
 	public void tickAndRender(
-		GuiGraphicsExtractor graphics,
+		GuiGraphics graphics,
 		long now,
 		float elapsedSeconds,
 		int width,
@@ -77,7 +76,7 @@ public final class SpiderSplatters {
 		boolean enabled,
 		boolean allowCurrentView,
 		boolean freezeForPause,
-		@Nullable Entity hitSpider
+		Entity hitSpider
 	) {
 		if (!enabled || !allowCurrentView) {
 			this.clear();
@@ -208,7 +207,7 @@ public final class SpiderSplatters {
 		return false;
 	}
 
-	private void renderSplats(GuiGraphicsExtractor graphics, long now) {
+	private void renderSplats(GuiGraphics graphics, long now) {
 		for (SpiderSplat splat : this.splats) {
 			float age = (now - splat.spawnTime) / (float) SPLAT_LIFETIME_MS;
 			float alpha = 1.0F - age;
@@ -218,22 +217,22 @@ public final class SpiderSplatters {
 
 			int argb = ParticleVisuals.textureArgb(alpha);
 
-			Matrix3x2fStack matrices = graphics.pose();
-			matrices.pushMatrix();
-			matrices.translate(splat.x, splat.y);
+			PoseStack matrices = graphics.pose();
+			matrices.pushPose();
+			matrices.translate(splat.x, splat.y, 0.0F);
 
 			float half = splat.size / 2.0F;
 			float textureHalf = splat.textureSize / 2.0F;
 			float drawScale = splat.size / splat.textureSize;
-			matrices.translate(half, half);
+			matrices.translate(half, half, 0.0F);
 
-			matrices.scale(splat.flipX ? -1.0F : 1.0F, splat.flipY ? -1.0F : 1.0F);
-			matrices.rotate((float) Math.toRadians(splat.rotation));
-			matrices.scale(drawScale, drawScale);
-			matrices.translate(-textureHalf, -textureHalf);
+			matrices.scale(splat.flipX ? -1.0F : 1.0F, splat.flipY ? -1.0F : 1.0F, 1.0F);
+			matrices.mulPose(Axis.ZP.rotation((float) Math.toRadians(splat.rotation)));
+			matrices.scale(drawScale, drawScale, 1.0F);
+			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
 			graphics.blit(
-				RenderPipelines.GUI_TEXTURED,
+				
 				Objects.requireNonNull(splat.texture),
 				0, 0,
 				0, 0,
@@ -242,7 +241,7 @@ public final class SpiderSplatters {
 				argb
 			);
 
-			matrices.popMatrix();
+			matrices.popPose();
 		}
 	}
 

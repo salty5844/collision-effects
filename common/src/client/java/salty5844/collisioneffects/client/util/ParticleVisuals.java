@@ -3,7 +3,7 @@ package salty5844.collisioneffects.client.util;
 import salty5844.collisioneffects.client.config.Config;
 
 
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public final class ParticleVisuals {
 
@@ -27,7 +27,7 @@ public final class ParticleVisuals {
 		};
 	}
 
-	public static int filenameSizeWeight(Identifier texture) {
+	public static int filenameSizeWeight(ResourceLocation texture) {
 		String path = texture.getPath();
 		if (path.contains("small")) {
 			return 4;

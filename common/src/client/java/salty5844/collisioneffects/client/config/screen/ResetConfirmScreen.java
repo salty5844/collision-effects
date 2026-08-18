@@ -5,12 +5,11 @@ import salty5844.collisioneffects.client.config.Config;
 
 
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.jspecify.annotations.NonNull;
 
 public final class ResetConfirmScreen extends Screen {
 
@@ -36,7 +35,7 @@ public final class ResetConfirmScreen extends Screen {
 			Config.getInstance().resetToDefaults();
 			Config.getInstance().save(Config.getConfigDir());
 			if (this.minecraft != null && parent != null) {
-				this.minecraft.setScreenAndShow(parent);
+				this.minecraft.setScreen(parent);
 			}
 		}).bounds(centerX - 102, this.height - 48, 100, 20).build());
 
@@ -48,14 +47,14 @@ public final class ResetConfirmScreen extends Screen {
 	@Override
 	public void onClose() {
 		if (this.minecraft != null && parent != null) {
-			this.minecraft.setScreenAndShow(parent);
+			this.minecraft.setScreen(parent);
 			return;
 		}
 		super.onClose();
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.render(graphics, mouseX, mouseY, partialTick);
 	}
 }

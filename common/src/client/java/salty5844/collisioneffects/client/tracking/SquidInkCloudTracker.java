@@ -4,7 +4,7 @@ package salty5844.collisioneffects.client.tracking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -65,7 +65,7 @@ public final class SquidInkCloudTracker {
 	}
 
 	private static boolean isSquid(Entity entity) {
-		Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+		ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
 		String path = entityId.getPath();
 		return path.contains("squid") && !path.contains("ink");
 	}

@@ -5,16 +5,13 @@ import salty5844.collisioneffects.client.config.Config;
 
 
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 public final class LavaConfigScreen extends Screen {
 
@@ -66,17 +63,15 @@ public final class LavaConfigScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean captured) {
-		double mouseX = event.x();
-		double mouseY = event.y();
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (mouseX < 8 || mouseX > this.width - 8 || mouseY < 8 || mouseY > this.height - 8) {
 			return true;
 		}
-		return super.mouseClicked(event, captured);
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
 	private CycleButton<Boolean> addToggleRow(String label, boolean initialValue, int rowX, int rowY, BooleanValueConsumer onChange) {
-		@NonNull String displayLabel = requireNonNullString(label);
+		String displayLabel = requireNonNullString(label);
 		addWrappedCenteredLabel(displayLabel, rowX, rowY);
 		CycleButton<Boolean> toggle = CycleButton.onOffBuilder(initialValue)
 			.displayOnlyValue()
@@ -87,7 +82,7 @@ public final class LavaConfigScreen extends Screen {
 	}
 
 private void addWrappedCenteredLabel(String label, int rowX, int rowY) {
-@NonNull String displayLabel = requireNonNullString(label);
+String displayLabel = requireNonNullString(label);
 if (this.font.width(displayLabel) <= LABEL_WIDTH) {
 this.addRenderableWidget(new StringWidget(rowX, rowY, LABEL_WIDTH, 20, Component.literal(displayLabel), this.font));
 return;
@@ -99,8 +94,8 @@ this.addRenderableWidget(new StringWidget(rowX, rowY, LABEL_WIDTH, 20, Component
 return;
 }
 
-@NonNull String firstLine = requireNonNullString(displayLabel.substring(0, wrapIndex).trim());
-@NonNull String secondLine = requireNonNullString(displayLabel.substring(wrapIndex + 1).trim());
+String firstLine = requireNonNullString(displayLabel.substring(0, wrapIndex).trim());
+String secondLine = requireNonNullString(displayLabel.substring(wrapIndex + 1).trim());
 int firstWidth = this.font.width(firstLine);
 int secondWidth = this.font.width(secondLine);
 this.addRenderableWidget(new StringWidget(rowX + Math.max(0, (LABEL_WIDTH - firstWidth) / 2), rowY, firstWidth, 10, Component.literal(firstLine), this.font));
@@ -114,8 +109,8 @@ for (int i = 1; i < text.length() - 1; i++) {
 if (text.charAt(i) != ' ') {
 continue;
 }
-@NonNull String left = requireNonNullString(text.substring(0, i).trim());
-@NonNull String right = requireNonNullString(text.substring(i + 1).trim());
+String left = requireNonNullString(text.substring(0, i).trim());
+String right = requireNonNullString(text.substring(i + 1).trim());
 if (left.isEmpty() || right.isEmpty()) {
 continue;
 }
@@ -132,18 +127,18 @@ return bestIndex;
 	@Override
 	public void onClose() {
 		if (this.minecraft != null && parent != null) {
-			this.minecraft.setScreenAndShow(parent);
+			this.minecraft.setScreen(parent);
 			return;
 		}
 		super.onClose();
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.render(graphics, mouseX, mouseY, partialTick);
 	}
 
-	private static @NonNull String requireNonNullString(@Nullable String value) {
+	private static String requireNonNullString(String value) {
 		if (value == null) {
 			return "";
 		}

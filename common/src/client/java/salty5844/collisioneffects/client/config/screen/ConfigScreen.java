@@ -13,7 +13,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
@@ -21,12 +21,8 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 public final class ConfigScreen extends Screen {
 
@@ -63,10 +59,10 @@ public final class ConfigScreen extends Screen {
 	private int scrollOffset = 0;
 	private boolean draggingScrollbar = false;
 	private int scrollbarDragOffset = 0;
-	private @Nullable Button configurationHotkeyButton;
-	private @Nullable Button configurationHotkeyResetButton;
-	private @Nullable Button resetButton;
-	private @Nullable Button doneButton;
+	private Button configurationHotkeyButton;
+	private Button configurationHotkeyResetButton;
+	private Button resetButton;
+	private Button doneButton;
 	private boolean listeningForConfigurationHotkey = false;
 	private boolean configurationHotkeyHasConflict = false;
 	private final List<Component> configurationHotkeyConflicts = new ArrayList<>();
@@ -103,7 +99,7 @@ public final class ConfigScreen extends Screen {
 		this.addRenderableWidget(new StringWidget((this.width - titleWidth) / 2, 12, titleWidth, 20, Component.literal(titleText), this.font));
 		resetButton = this.addRenderableWidget(Button.builder(Component.literal("Reset"), button -> {
 			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new ResetConfirmScreen(this));
+				this.minecraft.setScreen(new ResetConfirmScreen(this));
 			}
 		}).bounds(this.width - 70, 12, 56, 20).build());
 
@@ -152,21 +148,21 @@ public final class ConfigScreen extends Screen {
 
 		addScrollableWidget(Button.builder(Component.literal("Bugs"), button -> {
 			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new BugSplatterConfigScreen(this));
+				this.minecraft.setScreen(new BugSplatterConfigScreen(this));
 			}
 		}).bounds(leftColumnX, leftRowY, buttonWidth, 20).build(), leftRowY);
 		leftRowY += MENU_ROW_HEIGHT;
 
 		addScrollableWidget(Button.builder(Component.literal("Damage"), button -> {
 			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new DamageTintConfigScreen(this));
+				this.minecraft.setScreen(new DamageTintConfigScreen(this));
 			}
 		}).bounds(leftColumnX, leftRowY, buttonWidth, 20).build(), leftRowY);
 		leftRowY += MENU_ROW_HEIGHT;
 
 		addScrollableWidget(Button.builder(Component.literal("Explosions"), button -> {
 			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new ExplosionFlashConfigScreen(this));
+				this.minecraft.setScreen(new ExplosionFlashConfigScreen(this));
 			}
 		}).bounds(leftColumnX, leftRowY, buttonWidth, 20).build(), leftRowY);
 		leftRowY += MENU_ROW_HEIGHT;
@@ -176,27 +172,27 @@ public final class ConfigScreen extends Screen {
 
 		addScrollableWidget(Button.builder(Component.literal("Rain/Water"), button -> {
 			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new WaterRainConfigScreen(this));
+				this.minecraft.setScreen(new WaterRainConfigScreen(this));
 			}
 		}).bounds(leftColumnX, leftRowY, buttonWidth, 20).build(), leftRowY);
 		leftRowY += MENU_ROW_HEIGHT;
 
 		addScrollableWidget(Button.builder(Component.literal("Snow"), button -> {
 			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new SnowConfigScreen(this));
+				this.minecraft.setScreen(new SnowConfigScreen(this));
 			}
 		}).bounds(leftColumnX, leftRowY, buttonWidth, 20).build(), leftRowY);
 
 		addScrollableWidget(Button.builder(Component.literal("Bee"), button -> {
 			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new BeePollenConfigScreen(this));
+				this.minecraft.setScreen(new BeePollenConfigScreen(this));
 			}
 		}).bounds(rightColumnX, rightRowY, buttonWidth, 20).build(), rightRowY);
 		rightRowY += MENU_ROW_HEIGHT;
 
 		addScrollableWidget(Button.builder(Component.literal("Chicken"), button -> {
 			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new ChickenFeathersConfigScreen(this));
+				this.minecraft.setScreen(new ChickenFeathersConfigScreen(this));
 			}
 		}).bounds(rightColumnX, rightRowY, buttonWidth, 20).build(), rightRowY);
 		rightRowY += MENU_ROW_HEIGHT;
@@ -206,14 +202,14 @@ public final class ConfigScreen extends Screen {
 
 		addScrollableWidget(Button.builder(Component.literal("Magma Cube"), button -> {
 			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new MagmaConfigScreen(this));
+				this.minecraft.setScreen(new MagmaConfigScreen(this));
 			}
 		}).bounds(rightColumnX, rightRowY, buttonWidth, 20).build(), rightRowY);
 		rightRowY += MENU_ROW_HEIGHT;
 
 		addScrollableWidget(Button.builder(Component.literal("Slime"), button -> {
 			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new SlimeConfigScreen(this));
+				this.minecraft.setScreen(new SlimeConfigScreen(this));
 			}
 		}).bounds(rightColumnX, rightRowY, buttonWidth, 20).build(), rightRowY);
 		rightRowY += MENU_ROW_HEIGHT;
@@ -222,13 +218,6 @@ public final class ConfigScreen extends Screen {
 		rightRowY += MENU_ROW_HEIGHT;
 
 		addSingleOptionToggleButton("Squid Ink", "squid_ink", rightColumnX, rightRowY, buttonWidth);
-		rightRowY += MENU_ROW_HEIGHT;
-
-		addScrollableWidget(Button.builder(Component.literal("Sulfur Cube"), button -> {
-			if (this.minecraft != null) {
-				this.minecraft.setScreenAndShow(new SulfurConfigScreen(this));
-			}
-		}).bounds(rightColumnX, rightRowY, buttonWidth, 20).build(), rightRowY);
 		rightRowY += MENU_ROW_HEIGHT;
 
 		addSingleOptionToggleButton("Wither Vignette", "wither_vingette", rightColumnX, rightRowY, buttonWidth);
@@ -243,19 +232,17 @@ public final class ConfigScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseClicked(@NonNull MouseButtonEvent event, boolean captured) {
-		double mouseX = event.x();
-		double mouseY = event.y();
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (mouseX < 8 || mouseX > this.width - 8 || mouseY < 8 || mouseY > this.height - 8) {
 			return true;
 		}
 		if (isOverResetButton(mouseX, mouseY)) {
 			Button resetButton = this.resetButton;
-			return resetButton != null && resetButton.mouseClicked(event, captured);
+			return resetButton != null && resetButton.mouseClicked(mouseX, mouseY, button);
 		}
 		if (isOverDoneButton(mouseX, mouseY)) {
 			Button doneButton = this.doneButton;
-			return doneButton != null && doneButton.mouseClicked(event, captured);
+			return doneButton != null && doneButton.mouseClicked(mouseX, mouseY, button);
 		}
 		if (mouseY < getViewportBorderTop()) {
 			return true;
@@ -263,11 +250,11 @@ public final class ConfigScreen extends Screen {
 		if (mouseY >= getViewportBorderBottom()) {
 			return true;
 		}
-		if (listeningForConfigurationHotkey && event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
+		if (listeningForConfigurationHotkey && button == InputConstants.MOUSE_BUTTON_LEFT) {
 			listeningForConfigurationHotkey = false;
 			refreshConfigurationHotkeyButtons(Config.getInstance());
 		}
-		if (event.button() == 0 && maxScroll > 0 && isInScrollbarTrack(mouseX, mouseY)) {
+		if (button == 0 && maxScroll > 0 && isInScrollbarTrack(mouseX, mouseY)) {
 			int handleY = getScrollbarHandleY();
 			int handleHeight = getScrollbarHandleHeight();
 			if (mouseY >= handleY && mouseY < handleY + handleHeight) {
@@ -280,23 +267,23 @@ public final class ConfigScreen extends Screen {
 			}
 			return true;
 		}
-		return super.mouseClicked(event, captured);
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
 		if (maxScroll > 0 && scrollY != 0.0D) {
 			int scrollStep = Math.max(1, MENU_ROW_HEIGHT / 2);
 			scrollBy(scrollY > 0.0D ? -scrollStep : scrollStep);
 			return true;
 		}
-		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+		return super.mouseScrolled(mouseX, mouseY, scrollY);
 	}
 
 	@Override
-	public boolean keyPressed(@NonNull KeyEvent event) {
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (listeningForConfigurationHotkey) {
-			InputConstants.Key key = InputConstants.getKey(event);
+			InputConstants.Key key = InputConstants.getKey(keyCode, scanCode);
 			if (key.getValue() != InputConstants.KEY_ESCAPE) {
 				Config.getInstance().setConfigurationHotkey(key.getValue());
 			}
@@ -304,46 +291,46 @@ public final class ConfigScreen extends Screen {
 			refreshConfigurationHotkeyButtons(Config.getInstance());
 			return true;
 		}
-		return super.keyPressed(event);
+		return super.keyPressed(keyCode, scanCode, modifiers);
 	}
 
 	@Override
-	public boolean mouseDragged(@NonNull MouseButtonEvent event, double dragX, double dragY) {
-		if (event.button() == 0 && draggingScrollbar) {
-			double mouseY = event.y();
+	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+		if (button == 0 && draggingScrollbar) {
 			setScrollFromHandleY((int) mouseY - scrollbarDragOffset);
 			return true;
 		}
-		return super.mouseDragged(event, dragX, dragY);
+		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
 	}
 
 	@Override
-	public boolean mouseReleased(@NonNull MouseButtonEvent event) {
-		if (event.button() == 0 && draggingScrollbar) {
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		if (button == 0 && draggingScrollbar) {
 			draggingScrollbar = false;
 			return true;
 		}
-		return super.mouseReleased(event);
+		return super.mouseReleased(mouseX, mouseY, button);
 	}
 
 	@Override
 	public void onClose() {
 		if (this.minecraft != null && parent != null) {
-			this.minecraft.setScreenAndShow(parent);
+			this.minecraft.setScreen(parent);
 			return;
 		}
 		super.onClose();
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		renderBackground(graphics);
 		renderScrollableWidgets(graphics, mouseX, mouseY, partialTick);
-		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+		super.render(graphics, mouseX, mouseY, partialTick);
 		renderScrollbar(graphics);
 	}
 
 	private void addCenterDeadzoneSliderRow(Config config, int rowX, int rowY, int labelWidth, String label) {
-		@NonNull String displayLabel = requireNonNullString(label);
+		String displayLabel = requireNonNullString(label);
 		addScrollableWidget(new StringWidget(rowX, rowY, labelWidth, 20, Component.literal(displayLabel), this.font), rowY);
 		EditBox valueBox = new EditBox(this.font, rowX + labelWidth + LABEL_TO_VALUE_GAP, rowY, VALUE_BOX_WIDTH, 20, Component.literal(displayLabel));
 		IntegerSlider slider = new IntegerSlider(
@@ -382,7 +369,7 @@ public final class ConfigScreen extends Screen {
 	}
 
 	private void addMobHitTrackingRadiusSliderRow(Config config, int rowX, int rowY, int labelWidth, String label) {
-		@NonNull String displayLabel = requireNonNullString(label);
+		String displayLabel = requireNonNullString(label);
 		addScrollableWidget(new StringWidget(rowX, rowY, labelWidth, 20, Component.literal(displayLabel), this.font), rowY);
 		EditBox valueBox = new EditBox(this.font, rowX + labelWidth + LABEL_TO_VALUE_GAP, rowY, VALUE_BOX_WIDTH, 20, Component.literal(displayLabel));
 		IntegerSlider slider = new IntegerSlider(
@@ -421,7 +408,7 @@ public final class ConfigScreen extends Screen {
 	}
 
 	private void addParticleCapacitySliderRow(Config config, int rowX, int rowY, int labelWidth, String label) {
-		@NonNull String displayLabel = requireNonNullString(label);
+		String displayLabel = requireNonNullString(label);
 		addScrollableWidget(new StringWidget(rowX, rowY, labelWidth, 20, Component.literal(displayLabel), this.font), rowY);
 		EditBox valueBox = new EditBox(this.font, rowX + labelWidth + LABEL_TO_VALUE_GAP, rowY, VALUE_BOX_WIDTH, 20, Component.literal(displayLabel));
 		IntegerSlider slider = new IntegerSlider(
@@ -460,7 +447,7 @@ public final class ConfigScreen extends Screen {
 	}
 
 	private void addParticleOpacitySliderRow(Config config, int rowX, int rowY, int labelWidth, String label) {
-		@NonNull String displayLabel = requireNonNullString(label);
+		String displayLabel = requireNonNullString(label);
 		addScrollableWidget(new StringWidget(rowX, rowY, labelWidth, 20, Component.literal(displayLabel), this.font), rowY);
 		EditBox valueBox = new EditBox(this.font, rowX + labelWidth + LABEL_TO_VALUE_GAP, rowY, VALUE_BOX_WIDTH, 20, Component.literal(displayLabel));
 		IntegerSlider slider = new IntegerSlider(
@@ -499,7 +486,7 @@ public final class ConfigScreen extends Screen {
 	}
 
 	private void addConfigurationHotkeyRow(Config config, int rowX, int rowY, int labelWidth, String label) {
-		@NonNull String displayLabel = requireNonNullString(label);
+		String displayLabel = requireNonNullString(label);
 		addScrollableWidget(new StringWidget(rowX, rowY, labelWidth, 20, Component.literal(displayLabel), this.font), rowY);
 		int buttonX = rowX + labelWidth + LABEL_TO_VALUE_GAP;
 		Button hotkeyButton = Button.builder(Component.empty(), button -> {
@@ -569,7 +556,7 @@ public final class ConfigScreen extends Screen {
 	}
 
 	private String buildSingleOptionToggleText(String label, boolean enabled) {
-		@NonNull String safeLabel = requireNonNullString(label);
+		String safeLabel = requireNonNullString(label);
 		return safeLabel + ": " + (enabled ? "ON" : "OFF");
 	}
 
@@ -671,7 +658,7 @@ public final class ConfigScreen extends Screen {
 		applyScrollAndVisibility();
 	}
 
-	private void renderScrollableWidgets(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+	private void renderScrollableWidgets(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
 		int scissorTop = getVisibleTop();
 		int scissorBottom = getVisibleBottom();
 		if (scissorBottom <= scissorTop) {
@@ -680,13 +667,13 @@ public final class ConfigScreen extends Screen {
 		graphics.enableScissor(0, scissorTop, this.width, scissorBottom);
 		for (net.minecraft.client.gui.components.AbstractWidget widget : scrollableWidgets) {
 			if (widget.visible) {
-				widget.extractRenderState(graphics, mouseX, mouseY, partialTick);
+				widget.render(graphics, mouseX, mouseY, partialTick);
 			}
 		}
 		graphics.disableScissor();
 	}
 
-	private void renderScrollbar(GuiGraphicsExtractor graphics) {
+	private void renderScrollbar(GuiGraphics graphics) {
 		if (maxScroll <= 0) {
 			return;
 		}
@@ -730,7 +717,7 @@ public final class ConfigScreen extends Screen {
 		InputConstants.Key configuredKey = InputConstants.Type.KEYSYM.getOrCreate(config.getConfigurationHotkey());
 		List<Component> conflicts = new ArrayList<>();
 		for (KeyMapping keyMapping : this.minecraft.options.keyMappings) {
-			if (keyMapping.matches(configuredKey)) {
+			if (keyMapping.matches(configuredKey.getValue(), 0)) {
 				conflicts.add(Component.translatable(keyMapping.getName()));
 			}
 		}
@@ -758,14 +745,14 @@ public final class ConfigScreen extends Screen {
 		}
 	}
 
-	private static @NonNull String requireNonNullString(@Nullable String value) {
+	private static String requireNonNullString(String value) {
 		if (value == null) {
 			return "";
 		}
 		return value;
 	}
 
-	private static @NonNull Component requireNonNullComponent(@Nullable Component value) {
+	private static Component requireNonNullComponent(Component value) {
 		if (value == null) {
 			return Component.empty();
 		}

@@ -1,6 +1,6 @@
 package salty5844.collisioneffects.client.effect.overlay;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 
 public final class DamageTint {
 
@@ -11,7 +11,7 @@ public final class DamageTint {
 	private float currentAlpha;
 
 	public void tickAndRender(
-		GuiGraphicsExtractor graphics,
+		GuiGraphics graphics,
 		long now,
 		int width,
 		int height,
@@ -50,7 +50,7 @@ public final class DamageTint {
 		currentAlpha = 0.0F;
 	}
 
-	private void renderTint(GuiGraphicsExtractor graphics, int width, int height, float alpha) {
+	private void renderTint(GuiGraphics graphics, int width, int height, float alpha) {
 		if (alpha <= 0.0F || width <= 0 || height <= 0) {
 			return;
 		}

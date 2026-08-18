@@ -2,22 +2,20 @@ package salty5844.collisioneffects.client.effect.overlay;
 
 import java.util.Objects;
 
-import org.joml.Matrix3x2fStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.Identifier;
-import org.jspecify.annotations.NonNull;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 
 public final class DamageVingette {
 
-	private static final @NonNull Identifier VIGNETTE_TEXTURE = Objects.requireNonNull(Identifier.fromNamespaceAndPath("collision-effects", "textures/vignette.png"));
+	private static final ResourceLocation VIGNETTE_TEXTURE = Objects.requireNonNull(new ResourceLocation("collision-effects", "textures/vignette.png"));
 	private static final int VIGNETTE_TEXTURE_WIDTH = 114;
 	private static final int VIGNETTE_TEXTURE_HEIGHT = 64;
 	private static final float MAX_TINT_ALPHA = 0.25F;
 
 	public void tickAndRender(
-		GuiGraphicsExtractor graphics,
+		GuiGraphics graphics,
 		int width,
 		int height,
 		boolean vingetteEnabled,
@@ -47,7 +45,7 @@ public final class DamageVingette {
 		// Stateless: nothing to clear.
 	}
 
-	private void renderTint(GuiGraphicsExtractor graphics, int width, int height, float alpha) {
+	private void renderTint(GuiGraphics graphics, int width, int height, float alpha) {
 		if (width <= 0 || height <= 0) {
 			return;
 		}
@@ -56,17 +54,16 @@ public final class DamageVingette {
 		graphics.fill(0, 0, width, height, argb);
 	}
 
-	private void renderVingette(GuiGraphicsExtractor graphics, int width, int height, float alpha) {
+	private void renderVingette(GuiGraphics graphics, int width, int height, float alpha) {
 		if (width <= 0 || height <= 0) {
 			return;
 		}
 
 		int argb = ((int) (alpha * 255.0F) << 24) | 0x00FFFFFF;
-		Matrix3x2fStack matrices = graphics.pose();
-		matrices.pushMatrix();
-		matrices.scale(width / (float) VIGNETTE_TEXTURE_WIDTH, height / (float) VIGNETTE_TEXTURE_HEIGHT);
+		PoseStack matrices = graphics.pose();
+		matrices.pushPose();
+		matrices.scale(width / (float) VIGNETTE_TEXTURE_WIDTH, height / (float) VIGNETTE_TEXTURE_HEIGHT, 1.0F);
 		graphics.blit(
-			RenderPipelines.GUI_TEXTURED,
 			VIGNETTE_TEXTURE,
 			0, 0,
 			0, 0,
@@ -74,6 +71,6 @@ public final class DamageVingette {
 			VIGNETTE_TEXTURE_WIDTH, VIGNETTE_TEXTURE_HEIGHT,
 			argb
 		);
-		matrices.popMatrix();
+		matrices.popPose();
 	}
 }

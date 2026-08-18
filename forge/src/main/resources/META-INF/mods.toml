@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[65,)"
+loaderVersion="[46,)"
 license="MIT"
 issueTrackerURL="https://github.com/salty5844/collision-effects/issues"
 
@@ -16,14 +16,14 @@ displayURL="https://www.salty5844.com/"
 [[dependencies.collision_effects]]
 modId="forge"
 mandatory=true
-versionRange="[65,)"
+versionRange="[46,)"
 ordering="NONE"
 side="CLIENT"
 
 [[dependencies.collision_effects]]
 modId="minecraft"
 mandatory=true
-versionRange="[26.2,26.3)"
+versionRange="[1.20,1.21)"
 ordering="NONE"
 side="CLIENT"
 

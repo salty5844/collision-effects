@@ -9,7 +9,7 @@ import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -19,8 +19,6 @@ import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 public final class ExplosionFlashConfigScreen extends Screen {
 
@@ -111,7 +109,7 @@ public final class ExplosionFlashConfigScreen extends Screen {
 	}
 
 	private CycleButton<Boolean> addToggleRow(String label, boolean initialValue, int rowX, int rowY, int labelWidth, BooleanValueConsumer onChange) {
-		@NonNull String displayLabel = requireNonNullString(label);
+		String displayLabel = requireNonNullString(label);
 		this.addRenderableWidget(new StringWidget(rowX, rowY, labelWidth, 20, Component.literal(displayLabel), this.font));
 		CycleButton<Boolean> toggle = CycleButton.onOffBuilder(initialValue)
 			.displayOnlyValue()
@@ -132,7 +130,7 @@ public final class ExplosionFlashConfigScreen extends Screen {
 		IntConsumer setter,
 		List<AbstractWidget> dependentWidgets
 	) {
-		@NonNull String displayLabel = requireNonNullString(label);
+		String displayLabel = requireNonNullString(label);
 		this.addRenderableWidget(new StringWidget(rowX, rowY, labelWidth, 20, Component.literal(displayLabel), this.font));
 		EditBox valueBox = new EditBox(this.font, rowX + labelWidth + LABEL_TO_VALUE_GAP, rowY, VALUE_BOX_WIDTH, 20, Component.literal(displayLabel));
 		IntegerSlider slider = new IntegerSlider(
@@ -179,18 +177,18 @@ public final class ExplosionFlashConfigScreen extends Screen {
 	@Override
 	public void onClose() {
 		if (this.minecraft != null && parent != null) {
-			this.minecraft.setScreenAndShow(parent);
+			this.minecraft.setScreen(parent);
 			return;
 		}
 		super.onClose();
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.render(graphics, mouseX, mouseY, partialTick);
 	}
 
-	private static @NonNull String requireNonNullString(@Nullable String value) {
+	private static String requireNonNullString(String value) {
 		if (value == null) {
 			return "";
 		}
