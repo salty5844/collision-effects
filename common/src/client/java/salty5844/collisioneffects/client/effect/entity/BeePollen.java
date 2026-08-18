@@ -48,6 +48,9 @@ public final class BeePollen {
 		new PollenType(new ResourceLocation("collision-effects", "textures/pollen/large-3.png"), 16, 1.25F)
 	};
 
+	private static final List<PollenType> WEIGHTED_POLLEN_TYPES =
+		ParticleVisuals.buildWeightedPool(POLLEN_TYPES, SPLATS_PER_TEXTURE, PollenType::texture);
+
 	private static final class PollenSplat {
 		private float x;
 		private float y;
@@ -153,13 +156,7 @@ public final class BeePollen {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<PollenType> weightedTypes = new ArrayList<>();
-		for (PollenType pollenType : POLLEN_TYPES) {
-			int weightedRepeats = SPLATS_PER_TEXTURE * ParticleVisuals.filenameSizeWeight(pollenType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				weightedTypes.add(pollenType);
-			}
-		}
+		List<PollenType> weightedTypes = new ArrayList<>(WEIGHTED_POLLEN_TYPES);
 		while (!weightedTypes.isEmpty()) {
 			PollenType pollenType = TextureSelection.popRandomAvoidingRepeat(weightedTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (pollenType == null) {
@@ -267,7 +264,7 @@ public final class BeePollen {
 				continue;
 			}
 
-			int argb = ParticleVisuals.textureArgb(alpha);
+			float drawAlpha = ParticleVisuals.textureAlpha(alpha);
 
 			PoseStack matrices = graphics.pose();
 			matrices.pushPose();
@@ -283,15 +280,7 @@ public final class BeePollen {
 			matrices.scale(drawScale, drawScale, 1.0F);
 			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
-			graphics.blit(
-				
-				Objects.requireNonNull(splat.texture),
-				0, 0,
-				0, 0,
-				splat.textureSize, splat.textureSize,
-				splat.textureSize, splat.textureSize,
-				argb
-			);
+			ParticleVisuals.blitTinted(graphics, Objects.requireNonNull(splat.texture), splat.textureSize, splat.textureSize, drawAlpha);
 
 			matrices.popPose();
 		}

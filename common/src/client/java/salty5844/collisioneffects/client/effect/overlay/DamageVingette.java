@@ -1,5 +1,7 @@
 package salty5844.collisioneffects.client.effect.overlay;
 
+import salty5844.collisioneffects.client.util.ParticleVisuals;
+
 import java.util.Objects;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -59,18 +61,10 @@ public final class DamageVingette {
 			return;
 		}
 
-		int argb = ((int) (alpha * 255.0F) << 24) | 0x00FFFFFF;
 		PoseStack matrices = graphics.pose();
 		matrices.pushPose();
 		matrices.scale(width / (float) VIGNETTE_TEXTURE_WIDTH, height / (float) VIGNETTE_TEXTURE_HEIGHT, 1.0F);
-		graphics.blit(
-			VIGNETTE_TEXTURE,
-			0, 0,
-			0, 0,
-			VIGNETTE_TEXTURE_WIDTH, VIGNETTE_TEXTURE_HEIGHT,
-			VIGNETTE_TEXTURE_WIDTH, VIGNETTE_TEXTURE_HEIGHT,
-			argb
-		);
+		ParticleVisuals.blitTinted(graphics, VIGNETTE_TEXTURE, VIGNETTE_TEXTURE_WIDTH, VIGNETTE_TEXTURE_HEIGHT, Math.max(0.0F, Math.min(1.0F, alpha)));
 		matrices.popPose();
 	}
 }

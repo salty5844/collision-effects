@@ -59,6 +59,9 @@ public final class RainDrops {
 		new RainDropType(new ResourceLocation("collision-effects", "textures/drops/2.png"), 16, 1.0F)
 	};
 
+	private static final List<RainDropType> SPLASH_POOL = List.of(SPLASH_TYPES);
+	private static final List<RainDropType> STREAM_POOL = List.of(STREAM_TYPES);
+
 	private static final class RainDrop {
 		private float x;
 		private float y;
@@ -190,7 +193,7 @@ public final class RainDrops {
 				continue;
 			}
 
-			int argb = ParticleVisuals.textureArgb(alpha);
+			float drawAlpha = ParticleVisuals.textureAlpha(alpha);
 
 			PoseStack matrices = graphics.pose();
 			matrices.pushPose();
@@ -206,15 +209,7 @@ public final class RainDrops {
 			matrices.scale(drawScale, drawScale, 1.0F);
 			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
-			graphics.blit(
-				
-				Objects.requireNonNull(drop.texture),
-				0, 0,
-				0, 0,
-				drop.textureSize, drop.textureSize,
-				drop.textureSize, drop.textureSize,
-				argb
-			);
+			ParticleVisuals.blitTinted(graphics, Objects.requireNonNull(drop.texture), drop.textureSize, drop.textureSize, drawAlpha);
 
 			matrices.popPose();
 		}
@@ -332,10 +327,7 @@ public final class RainDrops {
 		if (types.length == 0) {
 			return null;
 		}
-		List<RainDropType> weightedTypes = new ArrayList<>();
-		for (RainDropType type : types) {
-			weightedTypes.add(Objects.requireNonNull(type));
-		}
+		List<RainDropType> weightedTypes = new ArrayList<>(types == STREAM_TYPES ? STREAM_POOL : SPLASH_POOL);
 		RainDropType candidate = TextureSelection.popRandomAvoidingRepeat(weightedTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 		if (candidate != null) {
 			return candidate;

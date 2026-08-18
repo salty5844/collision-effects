@@ -47,6 +47,9 @@ public final class SnowClumps {
 		new SnowClumpType(new ResourceLocation("collision-effects", "textures/clumps/large-3.png"), 16, 1.5F)
 	};
 
+	private static final List<SnowClumpType> WEIGHTED_CLUMP_TYPES =
+		ParticleVisuals.buildWeightedPool(CLUMP_TYPES, CLUMPS_PER_TEXTURE, SnowClumpType::texture);
+
 	private static final class SnowClump {
 		private float x;
 		private float y;
@@ -102,13 +105,7 @@ public final class SnowClumps {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<SnowClumpType> weightedTypes = new ArrayList<>();
-		for (SnowClumpType clumpType : CLUMP_TYPES) {
-			int weightedRepeats = CLUMPS_PER_TEXTURE * ParticleVisuals.filenameSizeWeight(clumpType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				weightedTypes.add(clumpType);
-			}
-		}
+		List<SnowClumpType> weightedTypes = new ArrayList<>(WEIGHTED_CLUMP_TYPES);
 		while (!weightedTypes.isEmpty()) {
 			SnowClumpType clumpType = TextureSelection.popRandomAvoidingRepeat(weightedTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (clumpType == null) {
@@ -216,7 +213,7 @@ public final class SnowClumps {
 				continue;
 			}
 
-			int argb = ParticleVisuals.textureArgb(alpha);
+			float drawAlpha = ParticleVisuals.textureAlpha(alpha);
 
 			PoseStack matrices = graphics.pose();
 			matrices.pushPose();
@@ -232,15 +229,7 @@ public final class SnowClumps {
 			matrices.scale(drawScale, drawScale, 1.0F);
 			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
-			graphics.blit(
-				
-				Objects.requireNonNull(clump.texture),
-				0, 0,
-				0, 0,
-				clump.textureSize, clump.textureSize,
-				clump.textureSize, clump.textureSize,
-				argb
-			);
+			ParticleVisuals.blitTinted(graphics, Objects.requireNonNull(clump.texture), clump.textureSize, clump.textureSize, drawAlpha);
 
 			matrices.popPose();
 		}

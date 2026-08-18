@@ -51,6 +51,9 @@ public final class SlimeSplatters {
 		new SlimeType(new ResourceLocation("collision-effects", "textures/slime/g-large-4.png"), 16, 1.25F)
 	};
 
+	private static final List<SlimeType> WEIGHTED_SLIME_TYPES =
+		ParticleVisuals.buildWeightedPool(SLIME_TYPES, 2, SlimeType::texture);
+
 	private static final class SlimeSplat {
 		private float x;
 		private float y;
@@ -163,13 +166,7 @@ public final class SlimeSplatters {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<SlimeType> doubledTypes = new ArrayList<>();
-		for (SlimeType slimeType : SLIME_TYPES) {
-			int weightedRepeats = 2 * ParticleVisuals.filenameSizeWeight(slimeType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				doubledTypes.add(slimeType);
-			}
-		}
+		List<SlimeType> doubledTypes = new ArrayList<>(WEIGHTED_SLIME_TYPES);
 		while (!doubledTypes.isEmpty()) {
 			SlimeType slimeType = TextureSelection.popRandomAvoidingRepeat(doubledTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (slimeType == null) {
@@ -277,7 +274,7 @@ public final class SlimeSplatters {
 				continue;
 			}
 
-			int argb = ParticleVisuals.textureArgb(alpha);
+			float drawAlpha = ParticleVisuals.textureAlpha(alpha);
 
 			PoseStack matrices = graphics.pose();
 			matrices.pushPose();
@@ -293,15 +290,7 @@ public final class SlimeSplatters {
 			matrices.scale(drawScale, drawScale, 1.0F);
 			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
-			graphics.blit(
-				
-				Objects.requireNonNull(splat.texture),
-				0, 0,
-				0, 0,
-				splat.textureSize, splat.textureSize,
-				splat.textureSize, splat.textureSize,
-				argb
-			);
+			ParticleVisuals.blitTinted(graphics, Objects.requireNonNull(splat.texture), splat.textureSize, splat.textureSize, drawAlpha);
 
 			matrices.popPose();
 		}

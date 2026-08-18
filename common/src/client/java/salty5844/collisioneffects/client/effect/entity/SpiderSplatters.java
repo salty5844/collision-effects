@@ -50,6 +50,9 @@ public final class SpiderSplatters {
 		new SpiderType(new ResourceLocation("collision-effects", "textures/spider/g-large-4.png"), 16, 1.25F)
 	};
 
+	private static final List<SpiderType> WEIGHTED_SPIDER_TYPES =
+		ParticleVisuals.buildWeightedPool(SPIDER_TYPES, SPLATS_PER_TEXTURE, SpiderType::texture);
+
 	private static final class SpiderSplat {
 		private float x;
 		private float y;
@@ -101,13 +104,7 @@ public final class SpiderSplatters {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<SpiderType> weightedTypes = new ArrayList<>();
-		for (SpiderType spiderType : SPIDER_TYPES) {
-			int weightedRepeats = SPLATS_PER_TEXTURE * ParticleVisuals.filenameSizeWeight(spiderType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				weightedTypes.add(spiderType);
-			}
-		}
+		List<SpiderType> weightedTypes = new ArrayList<>(WEIGHTED_SPIDER_TYPES);
 		while (!weightedTypes.isEmpty()) {
 			SpiderType spiderType = TextureSelection.popRandomAvoidingRepeat(weightedTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (spiderType == null) {
@@ -215,7 +212,7 @@ public final class SpiderSplatters {
 				continue;
 			}
 
-			int argb = ParticleVisuals.textureArgb(alpha);
+			float drawAlpha = ParticleVisuals.textureAlpha(alpha);
 
 			PoseStack matrices = graphics.pose();
 			matrices.pushPose();
@@ -231,15 +228,7 @@ public final class SpiderSplatters {
 			matrices.scale(drawScale, drawScale, 1.0F);
 			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
-			graphics.blit(
-				
-				Objects.requireNonNull(splat.texture),
-				0, 0,
-				0, 0,
-				splat.textureSize, splat.textureSize,
-				splat.textureSize, splat.textureSize,
-				argb
-			);
+			ParticleVisuals.blitTinted(graphics, Objects.requireNonNull(splat.texture), splat.textureSize, splat.textureSize, drawAlpha);
 
 			matrices.popPose();
 		}

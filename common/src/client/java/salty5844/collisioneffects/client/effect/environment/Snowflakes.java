@@ -41,6 +41,9 @@ public final class Snowflakes {
 		new SnowflakeType(new ResourceLocation("collision-effects", "textures/flakes/large.png"), 16, 1.5F)
 	};
 
+	private static final List<SnowflakeType> WEIGHTED_FLAKE_TYPES =
+		ParticleVisuals.buildWeightedPool(FLAKE_TYPES, 1, SnowflakeType::texture);
+
 	private static final class Snowflake {
 		private float x;
 		private float y;
@@ -228,13 +231,7 @@ public final class Snowflakes {
 		if (FLAKE_TYPES.length == 0) {
 			return null;
 		}
-		List<SnowflakeType> weightedTypes = new ArrayList<>();
-		for (SnowflakeType type : FLAKE_TYPES) {
-			for (int i = 0; i < ParticleVisuals.filenameSizeWeight(type.texture()); i++) {
-				weightedTypes.add(type);
-			}
-		}
-		return weightedTypes.get(random.nextInt(weightedTypes.size()));
+		return WEIGHTED_FLAKE_TYPES.get(random.nextInt(WEIGHTED_FLAKE_TYPES.size()));
 	}
 
 	private void renderFlakes(GuiGraphics graphics, long now) {
@@ -245,7 +242,7 @@ public final class Snowflakes {
 				continue;
 			}
 
-			int argb = ParticleVisuals.textureArgb(alpha);
+			float drawAlpha = ParticleVisuals.textureAlpha(alpha);
 
 			PoseStack matrices = graphics.pose();
 			matrices.pushPose();
@@ -261,15 +258,7 @@ public final class Snowflakes {
 			matrices.scale(drawScale, drawScale, 1.0F);
 			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
-			graphics.blit(
-				
-				Objects.requireNonNull(flake.texture),
-				0, 0,
-				0, 0,
-				flake.textureSize, flake.textureSize,
-				flake.textureSize, flake.textureSize,
-				argb
-			);
+			ParticleVisuals.blitTinted(graphics, Objects.requireNonNull(flake.texture), flake.textureSize, flake.textureSize, drawAlpha);
 
 			matrices.popPose();
 		}

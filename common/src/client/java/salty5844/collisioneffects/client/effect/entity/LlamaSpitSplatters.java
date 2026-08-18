@@ -50,6 +50,9 @@ public final class LlamaSpitSplatters {
 		new LlamaType(new ResourceLocation("collision-effects", "textures/llama/g-large-4.png"), 16, 1.25F)
 	};
 
+	private static final List<LlamaType> WEIGHTED_LLAMA_TYPES =
+		ParticleVisuals.buildWeightedPool(LLAMA_TYPES, SPLATS_PER_TEXTURE, LlamaType::texture);
+
 	private static final class LlamaSplat {
 		private float x;
 		private float y;
@@ -104,13 +107,7 @@ public final class LlamaSpitSplatters {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<LlamaType> weightedTypes = new ArrayList<>();
-		for (LlamaType llamaType : LLAMA_TYPES) {
-			int weightedRepeats = SPLATS_PER_TEXTURE * ParticleVisuals.filenameSizeWeight(llamaType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				weightedTypes.add(llamaType);
-			}
-		}
+		List<LlamaType> weightedTypes = new ArrayList<>(WEIGHTED_LLAMA_TYPES);
 		while (!weightedTypes.isEmpty()) {
 			LlamaType llamaType = TextureSelection.popRandomAvoidingRepeat(weightedTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (llamaType == null) {
@@ -218,7 +215,7 @@ public final class LlamaSpitSplatters {
 				continue;
 			}
 
-			int argb = ParticleVisuals.textureArgb(alpha);
+			float drawAlpha = ParticleVisuals.textureAlpha(alpha);
 
 			PoseStack matrices = graphics.pose();
 			matrices.pushPose();
@@ -234,15 +231,7 @@ public final class LlamaSpitSplatters {
 			matrices.scale(drawScale, drawScale, 1.0F);
 			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
-			graphics.blit(
-				
-				Objects.requireNonNull(splat.texture),
-				0, 0,
-				0, 0,
-				splat.textureSize, splat.textureSize,
-				splat.textureSize, splat.textureSize,
-				argb
-			);
+			ParticleVisuals.blitTinted(graphics, Objects.requireNonNull(splat.texture), splat.textureSize, splat.textureSize, drawAlpha);
 
 			matrices.popPose();
 		}

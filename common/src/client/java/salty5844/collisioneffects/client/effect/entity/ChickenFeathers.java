@@ -264,7 +264,7 @@ public final class ChickenFeathers {
 				continue;
 			}
 
-			int argb = ParticleVisuals.textureArgb(alpha);
+			float drawAlpha = ParticleVisuals.textureAlpha(alpha);
 
 			PoseStack matrices = graphics.pose();
 			matrices.pushPose();
@@ -280,15 +280,7 @@ public final class ChickenFeathers {
 			matrices.scale(drawScale, drawScale, 1.0F);
 			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
-			graphics.blit(
-				
-				Objects.requireNonNull(splat.texture),
-				0, 0,
-				0, 0,
-				splat.textureSize, splat.textureSize,
-				splat.textureSize, splat.textureSize,
-				argb
-			);
+			ParticleVisuals.blitTinted(graphics, Objects.requireNonNull(splat.texture), splat.textureSize, splat.textureSize, drawAlpha);
 
 			matrices.popPose();
 		}

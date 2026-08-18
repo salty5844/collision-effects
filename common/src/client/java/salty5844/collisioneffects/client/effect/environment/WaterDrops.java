@@ -39,6 +39,11 @@ public final class WaterDrops {
 		new WaterDropType(new ResourceLocation("collision-effects", "textures/splashes/large.png"), 16, 1.0F)
 	};
 
+	private static final List<WaterDropType> WEIGHTED_BURST_TYPES =
+		ParticleVisuals.buildWeightedPool(DROP_TYPES, BURST_COUNT_PER_TEXTURE, WaterDropType::texture);
+	private static final List<WaterDropType> WEIGHTED_DROP_TYPES =
+		ParticleVisuals.buildWeightedPool(DROP_TYPES, 1, WaterDropType::texture);
+
 	private static final class WaterDrop {
 		private float x;
 		private float y;
@@ -89,7 +94,7 @@ public final class WaterDrops {
 		}
 
 		if (enteredWater) {
-			spawnBurst(width, height, BURST_COUNT_PER_TEXTURE, now);
+			spawnBurst(width, height, now);
 		}
 
 		if (shouldSpawnForLookDirection && inWater && swimmingUp) {
@@ -103,7 +108,7 @@ public final class WaterDrops {
 		}
 
 		if (exitedWater) {
-			spawnBurst(width, height, BURST_COUNT_PER_TEXTURE, now);
+			spawnBurst(width, height, now);
 		}
 		this.wasInWater = inWater;
 
@@ -121,7 +126,7 @@ public final class WaterDrops {
 				continue;
 			}
 
-			int argb = ParticleVisuals.textureArgb(alpha);
+			float drawAlpha = ParticleVisuals.textureAlpha(alpha);
 
 			PoseStack matrices = graphics.pose();
 			matrices.pushPose();
@@ -137,28 +142,14 @@ public final class WaterDrops {
 			matrices.scale(drawScale, drawScale, 1.0F);
 			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
-			graphics.blit(
-				
-				Objects.requireNonNull(drop.texture),
-				0, 0,
-				0, 0,
-				drop.textureSize, drop.textureSize,
-				drop.textureSize, drop.textureSize,
-				argb
-			);
+			ParticleVisuals.blitTinted(graphics, Objects.requireNonNull(drop.texture), drop.textureSize, drop.textureSize, drawAlpha);
 
 			matrices.popPose();
 		}
 	}
 
-	private void spawnBurst(int width, int height, int repeatsPerTexture, long now) {
-		List<WaterDropType> burstTypes = new ArrayList<>();
-		for (WaterDropType dropType : DROP_TYPES) {
-			int weightedRepeats = repeatsPerTexture * ParticleVisuals.filenameSizeWeight(dropType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				burstTypes.add(dropType);
-			}
-		}
+	private void spawnBurst(int width, int height, long now) {
+		List<WaterDropType> burstTypes = new ArrayList<>(WEIGHTED_BURST_TYPES);
 		while (!burstTypes.isEmpty()) {
 			WaterDropType dropType = TextureSelection.popRandomAvoidingRepeat(burstTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (dropType == null) {
@@ -250,12 +241,7 @@ public final class WaterDrops {
 		if (DROP_TYPES.length == 0) {
 			return null;
 		}
-		List<WaterDropType> weightedTypes = new ArrayList<>();
-		for (WaterDropType dropType : DROP_TYPES) {
-			for (int i = 0; i < ParticleVisuals.filenameSizeWeight(dropType.texture()); i++) {
-				weightedTypes.add(dropType);
-			}
-		}
+		List<WaterDropType> weightedTypes = new ArrayList<>(WEIGHTED_DROP_TYPES);
 		WaterDropType candidate = TextureSelection.popRandomAvoidingRepeat(weightedTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 		if (candidate != null) {
 			return candidate;

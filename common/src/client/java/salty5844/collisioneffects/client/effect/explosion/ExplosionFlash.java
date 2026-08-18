@@ -45,6 +45,9 @@ public final class ExplosionFlash {
 		new SootType(new ResourceLocation("collision-effects", "textures/explosion/large-3.png"), 16, 1.25F)
 	};
 
+	private static final List<SootType> WEIGHTED_SOOT_TYPES =
+		ParticleVisuals.buildWeightedPool(SOOT_TYPES, SOOT_PER_TEXTURE, SootType::texture);
+
 	private static final class SootSplat {
 		private float x;
 		private float y;
@@ -114,13 +117,7 @@ public final class ExplosionFlash {
 	}
 
 	private void spawnAllSoot(int width, int height, long now) {
-		List<SootType> burstTypes = new ArrayList<>();
-		for (SootType sootType : SOOT_TYPES) {
-			int weightedRepeats = SOOT_PER_TEXTURE * ParticleVisuals.filenameSizeWeight(sootType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				burstTypes.add(sootType);
-			}
-		}
+		List<SootType> burstTypes = new ArrayList<>(WEIGHTED_SOOT_TYPES);
 		while (!burstTypes.isEmpty()) {
 			SootType sootType = TextureSelection.popRandomAvoidingRepeat(burstTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (sootType == null) {
@@ -228,7 +225,7 @@ public final class ExplosionFlash {
 			}
 
 			float alpha = 1.0F - (ageMs / (float) SOOT_FADE_MS);
-			int argb = ParticleVisuals.textureArgb(alpha);
+			float drawAlpha = ParticleVisuals.textureAlpha(alpha);
 
 			PoseStack matrices = graphics.pose();
 			matrices.pushPose();
@@ -244,15 +241,7 @@ public final class ExplosionFlash {
 			matrices.scale(drawScale, drawScale, 1.0F);
 			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
-			graphics.blit(
-				
-				Objects.requireNonNull(splat.texture),
-				0, 0,
-				0, 0,
-				splat.textureSize, splat.textureSize,
-				splat.textureSize, splat.textureSize,
-				argb
-			);
+			ParticleVisuals.blitTinted(graphics, Objects.requireNonNull(splat.texture), splat.textureSize, splat.textureSize, drawAlpha);
 
 			matrices.popPose();
 		}

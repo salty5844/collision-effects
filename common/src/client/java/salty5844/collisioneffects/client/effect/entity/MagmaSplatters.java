@@ -51,6 +51,9 @@ public final class MagmaSplatters {
 		new MagmaType(new ResourceLocation("collision-effects", "textures/magma/g-large-4.png"), 16, 1.25F)
 	};
 
+	private static final List<MagmaType> WEIGHTED_MAGMA_TYPES =
+		ParticleVisuals.buildWeightedPool(MAGMA_TYPES, 2, MagmaType::texture);
+
 	private static final class MagmaSplat {
 		private float x;
 		private float y;
@@ -163,13 +166,7 @@ public final class MagmaSplatters {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<MagmaType> doubledTypes = new ArrayList<>();
-		for (MagmaType magmaType : MAGMA_TYPES) {
-			int weightedRepeats = 2 * ParticleVisuals.filenameSizeWeight(magmaType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				doubledTypes.add(magmaType);
-			}
-		}
+		List<MagmaType> doubledTypes = new ArrayList<>(WEIGHTED_MAGMA_TYPES);
 		while (!doubledTypes.isEmpty()) {
 			MagmaType magmaType = TextureSelection.popRandomAvoidingRepeat(doubledTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (magmaType == null) {
@@ -277,7 +274,7 @@ public final class MagmaSplatters {
 				continue;
 			}
 
-			int argb = ParticleVisuals.textureArgb(alpha);
+			float drawAlpha = ParticleVisuals.textureAlpha(alpha);
 
 			PoseStack matrices = graphics.pose();
 			matrices.pushPose();
@@ -293,15 +290,7 @@ public final class MagmaSplatters {
 			matrices.scale(drawScale, drawScale, 1.0F);
 			matrices.translate(-textureHalf, -textureHalf, 0.0F);
 
-			graphics.blit(
-				
-				Objects.requireNonNull(splat.texture),
-				0, 0,
-				0, 0,
-				splat.textureSize, splat.textureSize,
-				splat.textureSize, splat.textureSize,
-				argb
-			);
+			ParticleVisuals.blitTinted(graphics, Objects.requireNonNull(splat.texture), splat.textureSize, splat.textureSize, drawAlpha);
 
 			matrices.popPose();
 		}
