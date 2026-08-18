@@ -62,3 +62,7 @@ processResources {
 		expand 'version': inputs.properties.version
 	}
 }
+
+afterEvaluate {
+	eclipse.classpath.defaultOutputDir = layout.buildDirectory.dir('eclipse-default').get().asFile
+}

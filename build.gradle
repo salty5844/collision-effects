@@ -6,6 +6,10 @@ subprojects {
 	group = rootProject.findProperty('maven_group')
 	version = rootProject.findProperty('mod_version')
 
+	pluginManager.withPlugin('java') {
+		apply plugin: 'eclipse'
+	}
+
 	tasks.withType(AbstractArchiveTask).configureEach {
 		archiveBaseName = "${rootProject.name}-${project.name}"
 	}
