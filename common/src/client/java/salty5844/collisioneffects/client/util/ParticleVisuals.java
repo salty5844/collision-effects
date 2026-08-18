@@ -5,6 +5,10 @@ import salty5844.collisioneffects.client.config.Config;
 
 import net.minecraft.resources.Identifier;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
 public final class ParticleVisuals {
 
 	private ParticleVisuals() {
@@ -39,5 +43,17 @@ public final class ParticleVisuals {
 			return 2;
 		}
 		return 1;
+	}
+
+	// Built once per effect class; callers copy it instead of re-deriving weights from filenames on every burst.
+	public static <T> List<T> buildWeightedPool(T[] types, int repeatsPerTexture, Function<T, Identifier> textureResolver) {
+		List<T> weighted = new ArrayList<>();
+		for (T type : types) {
+			int repeats = repeatsPerTexture * filenameSizeWeight(textureResolver.apply(type));
+			for (int i = 0; i < repeats; i++) {
+				weighted.add(type);
+			}
+		}
+		return List.copyOf(weighted);
 	}
 }

@@ -41,6 +41,9 @@ public final class ChickenFeathers {
 		new FeatherType(Identifier.fromNamespaceAndPath("collision-effects", "textures/feather/large.png"), 16)
 	};
 
+	private static final List<FeatherType> WEIGHTED_FEATHER_TYPES =
+		ParticleVisuals.buildWeightedPool(FEATHER_TYPES, 1, FeatherType::texture);
+
 	private static final class FeatherSplat {
 		private float x;
 		private float y;
@@ -227,13 +230,7 @@ public final class ChickenFeathers {
 		if (FEATHER_TYPES.length == 0) {
 			return null;
 		}
-		List<FeatherType> weightedTypes = new ArrayList<>();
-		for (FeatherType featherType : FEATHER_TYPES) {
-			for (int i = 0; i < ParticleVisuals.filenameSizeWeight(featherType.texture()); i++) {
-				weightedTypes.add(featherType);
-			}
-		}
-		return weightedTypes.get(random.nextInt(weightedTypes.size()));
+		return WEIGHTED_FEATHER_TYPES.get(random.nextInt(WEIGHTED_FEATHER_TYPES.size()));
 	}
 
 	private boolean overlapsExistingSplat(float x, float y, float size) {

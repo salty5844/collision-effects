@@ -52,6 +52,9 @@ public final class MagmaSplatters {
 		new MagmaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-large-4.png"), 16, 1.25F)
 	};
 
+	private static final List<MagmaType> WEIGHTED_MAGMA_TYPES =
+		ParticleVisuals.buildWeightedPool(MAGMA_TYPES, 2, MagmaType::texture);
+
 	private static final class MagmaSplat {
 		private float x;
 		private float y;
@@ -164,13 +167,7 @@ public final class MagmaSplatters {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<MagmaType> doubledTypes = new ArrayList<>();
-		for (MagmaType magmaType : MAGMA_TYPES) {
-			int weightedRepeats = 2 * ParticleVisuals.filenameSizeWeight(magmaType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				doubledTypes.add(magmaType);
-			}
-		}
+		List<MagmaType> doubledTypes = new ArrayList<>(WEIGHTED_MAGMA_TYPES);
 		while (!doubledTypes.isEmpty()) {
 			MagmaType magmaType = TextureSelection.popRandomAvoidingRepeat(doubledTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (magmaType == null) {

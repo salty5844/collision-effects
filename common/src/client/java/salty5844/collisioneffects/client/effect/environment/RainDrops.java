@@ -59,6 +59,9 @@ public final class RainDrops {
 		new RainDropType(Identifier.fromNamespaceAndPath("collision-effects", "textures/drops/2.png"), 16, 1.0F)
 	};
 
+	private static final List<@NonNull RainDropType> SPLASH_POOL = List.of(SPLASH_TYPES);
+	private static final List<@NonNull RainDropType> STREAM_POOL = List.of(STREAM_TYPES);
+
 	private static final class RainDrop {
 		private float x;
 		private float y;
@@ -332,10 +335,7 @@ public final class RainDrops {
 		if (types.length == 0) {
 			return null;
 		}
-		List<@NonNull RainDropType> weightedTypes = new ArrayList<>();
-		for (RainDropType type : types) {
-			weightedTypes.add(Objects.requireNonNull(type));
-		}
+		List<@NonNull RainDropType> weightedTypes = new ArrayList<>(types == STREAM_TYPES ? STREAM_POOL : SPLASH_POOL);
 		RainDropType candidate = TextureSelection.popRandomAvoidingRepeat(weightedTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 		if (candidate != null) {
 			return candidate;

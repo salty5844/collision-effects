@@ -52,6 +52,9 @@ public final class SlimeSplatters {
 		new SlimeType(Identifier.fromNamespaceAndPath("collision-effects", "textures/slime/g-large-4.png"), 16, 1.25F)
 	};
 
+	private static final List<SlimeType> WEIGHTED_SLIME_TYPES =
+		ParticleVisuals.buildWeightedPool(SLIME_TYPES, 2, SlimeType::texture);
+
 	private static final class SlimeSplat {
 		private float x;
 		private float y;
@@ -164,13 +167,7 @@ public final class SlimeSplatters {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<SlimeType> doubledTypes = new ArrayList<>();
-		for (SlimeType slimeType : SLIME_TYPES) {
-			int weightedRepeats = 2 * ParticleVisuals.filenameSizeWeight(slimeType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				doubledTypes.add(slimeType);
-			}
-		}
+		List<SlimeType> doubledTypes = new ArrayList<>(WEIGHTED_SLIME_TYPES);
 		while (!doubledTypes.isEmpty()) {
 			SlimeType slimeType = TextureSelection.popRandomAvoidingRepeat(doubledTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (slimeType == null) {

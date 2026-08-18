@@ -45,6 +45,9 @@ public final class ExplosionFlash {
 		new SootType(Identifier.fromNamespaceAndPath("collision-effects", "textures/explosion/large-3.png"), 16, 1.25F)
 	};
 
+	private static final List<SootType> WEIGHTED_SOOT_TYPES =
+		ParticleVisuals.buildWeightedPool(SOOT_TYPES, SOOT_PER_TEXTURE, SootType::texture);
+
 	private static final class SootSplat {
 		private float x;
 		private float y;
@@ -114,13 +117,7 @@ public final class ExplosionFlash {
 	}
 
 	private void spawnAllSoot(int width, int height, long now) {
-		List<SootType> burstTypes = new ArrayList<>();
-		for (SootType sootType : SOOT_TYPES) {
-			int weightedRepeats = SOOT_PER_TEXTURE * ParticleVisuals.filenameSizeWeight(sootType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				burstTypes.add(sootType);
-			}
-		}
+		List<SootType> burstTypes = new ArrayList<>(WEIGHTED_SOOT_TYPES);
 		while (!burstTypes.isEmpty()) {
 			SootType sootType = TextureSelection.popRandomAvoidingRepeat(burstTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (sootType == null) {

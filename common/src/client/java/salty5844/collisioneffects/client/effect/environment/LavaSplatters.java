@@ -48,6 +48,11 @@ public final class LavaSplatters {
 		new LavaType(Identifier.fromNamespaceAndPath("collision-effects", "textures/magma/g-large-4.png"), 16, 1.0F)
 	};
 
+	private static final List<@NonNull LavaType> WEIGHTED_BURST_TYPES =
+		ParticleVisuals.buildWeightedPool(SPLAT_TYPES, BURST_COUNT_PER_TEXTURE, LavaType::texture);
+	private static final List<@NonNull LavaType> WEIGHTED_SPLAT_TYPES =
+		ParticleVisuals.buildWeightedPool(SPLAT_TYPES, 1, LavaType::texture);
+
 	private static final class LavaSplat {
 		private float x;
 		private float y;
@@ -97,7 +102,7 @@ public final class LavaSplatters {
 		}
 
 		if (enteredLava) {
-			spawnBurst(width, height, BURST_COUNT_PER_TEXTURE, now);
+			spawnBurst(width, height, now);
 		}
 
 		if (shouldSpawnForLookDirection && inLava && swimmingUp) {
@@ -111,7 +116,7 @@ public final class LavaSplatters {
 		}
 
 		if (exitedLava) {
-			spawnBurst(width, height, BURST_COUNT_PER_TEXTURE, now);
+			spawnBurst(width, height, now);
 		}
 		this.wasInLava = inLava;
 
@@ -159,14 +164,8 @@ public final class LavaSplatters {
 		}
 	}
 
-	private void spawnBurst(int width, int height, int repeatsPerTexture, long now) {
-		List<LavaType> burstTypes = new ArrayList<>();
-		for (LavaType splatType : SPLAT_TYPES) {
-			int weightedRepeats = repeatsPerTexture * ParticleVisuals.filenameSizeWeight(splatType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				burstTypes.add(splatType);
-			}
-		}
+	private void spawnBurst(int width, int height, long now) {
+		List<LavaType> burstTypes = new ArrayList<>(WEIGHTED_BURST_TYPES);
 		while (!burstTypes.isEmpty()) {
 			LavaType splatType = TextureSelection.popRandomAvoidingRepeat(burstTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (splatType == null) {
@@ -258,12 +257,7 @@ public final class LavaSplatters {
 		if (SPLAT_TYPES.length == 0) {
 			return null;
 		}
-		List<@NonNull LavaType> weightedTypes = new ArrayList<>();
-		for (LavaType splatType : SPLAT_TYPES) {
-			for (int i = 0; i < ParticleVisuals.filenameSizeWeight(splatType.texture()); i++) {
-				weightedTypes.add(splatType);
-			}
-		}
+		List<@NonNull LavaType> weightedTypes = new ArrayList<>(WEIGHTED_SPLAT_TYPES);
 		LavaType candidate = TextureSelection.popRandomAvoidingRepeat(weightedTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 		if (candidate != null) {
 			return candidate;

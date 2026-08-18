@@ -52,6 +52,9 @@ public final class SulfurSplatters {
 		new SulfurType(Identifier.fromNamespaceAndPath("collision-effects", "textures/sulfur/g-large-4.png"), 16, 1.25F)
 	};
 
+	private static final List<SulfurType> WEIGHTED_SULFUR_TYPES =
+		ParticleVisuals.buildWeightedPool(SULFUR_TYPES, 2, SulfurType::texture);
+
 	private static final class SulfurSplat {
 		private float x;
 		private float y;
@@ -164,13 +167,7 @@ public final class SulfurSplatters {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<SulfurType> doubledTypes = new ArrayList<>();
-		for (SulfurType sulfurType : SULFUR_TYPES) {
-			int weightedRepeats = 2 * ParticleVisuals.filenameSizeWeight(sulfurType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				doubledTypes.add(sulfurType);
-			}
-		}
+		List<SulfurType> doubledTypes = new ArrayList<>(WEIGHTED_SULFUR_TYPES);
 		while (!doubledTypes.isEmpty()) {
 			SulfurType sulfurType = TextureSelection.popRandomAvoidingRepeat(doubledTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (sulfurType == null) {

@@ -41,6 +41,9 @@ public final class Snowflakes {
 		new SnowflakeType(Identifier.fromNamespaceAndPath("collision-effects", "textures/flakes/large.png"), 16, 1.5F)
 	};
 
+	private static final List<SnowflakeType> WEIGHTED_FLAKE_TYPES =
+		ParticleVisuals.buildWeightedPool(FLAKE_TYPES, 1, SnowflakeType::texture);
+
 	private static final class Snowflake {
 		private float x;
 		private float y;
@@ -228,13 +231,7 @@ public final class Snowflakes {
 		if (FLAKE_TYPES.length == 0) {
 			return null;
 		}
-		List<SnowflakeType> weightedTypes = new ArrayList<>();
-		for (SnowflakeType type : FLAKE_TYPES) {
-			for (int i = 0; i < ParticleVisuals.filenameSizeWeight(type.texture()); i++) {
-				weightedTypes.add(type);
-			}
-		}
-		return weightedTypes.get(random.nextInt(weightedTypes.size()));
+		return WEIGHTED_FLAKE_TYPES.get(random.nextInt(WEIGHTED_FLAKE_TYPES.size()));
 	}
 
 	private void renderFlakes(GuiGraphicsExtractor graphics, long now) {

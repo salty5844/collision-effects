@@ -49,6 +49,9 @@ public final class BeePollen {
 		new PollenType(Identifier.fromNamespaceAndPath("collision-effects", "textures/pollen/large-3.png"), 16, 1.25F)
 	};
 
+	private static final List<PollenType> WEIGHTED_POLLEN_TYPES =
+		ParticleVisuals.buildWeightedPool(POLLEN_TYPES, SPLATS_PER_TEXTURE, PollenType::texture);
+
 	private static final class PollenSplat {
 		private float x;
 		private float y;
@@ -154,13 +157,7 @@ public final class BeePollen {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<PollenType> weightedTypes = new ArrayList<>();
-		for (PollenType pollenType : POLLEN_TYPES) {
-			int weightedRepeats = SPLATS_PER_TEXTURE * ParticleVisuals.filenameSizeWeight(pollenType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				weightedTypes.add(pollenType);
-			}
-		}
+		List<PollenType> weightedTypes = new ArrayList<>(WEIGHTED_POLLEN_TYPES);
 		while (!weightedTypes.isEmpty()) {
 			PollenType pollenType = TextureSelection.popRandomAvoidingRepeat(weightedTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (pollenType == null) {

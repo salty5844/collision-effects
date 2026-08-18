@@ -51,6 +51,9 @@ public final class SpiderSplatters {
 		new SpiderType(Identifier.fromNamespaceAndPath("collision-effects", "textures/spider/g-large-4.png"), 16, 1.25F)
 	};
 
+	private static final List<SpiderType> WEIGHTED_SPIDER_TYPES =
+		ParticleVisuals.buildWeightedPool(SPIDER_TYPES, SPLATS_PER_TEXTURE, SpiderType::texture);
+
 	private static final class SpiderSplat {
 		private float x;
 		private float y;
@@ -102,13 +105,7 @@ public final class SpiderSplatters {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<SpiderType> weightedTypes = new ArrayList<>();
-		for (SpiderType spiderType : SPIDER_TYPES) {
-			int weightedRepeats = SPLATS_PER_TEXTURE * ParticleVisuals.filenameSizeWeight(spiderType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				weightedTypes.add(spiderType);
-			}
-		}
+		List<SpiderType> weightedTypes = new ArrayList<>(WEIGHTED_SPIDER_TYPES);
 		while (!weightedTypes.isEmpty()) {
 			SpiderType spiderType = TextureSelection.popRandomAvoidingRepeat(weightedTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (spiderType == null) {

@@ -3,6 +3,7 @@ package salty5844.collisioneffects.client;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.AddGuiOverlayLayersEvent;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.gui.overlay.ForgeLayeredDraw;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
@@ -27,5 +28,10 @@ public final class ForgeGameEvents {
 		if (event.getEntity() == Minecraft.getInstance().player) {
 			ClientLogic.getInstance().onEntityAttacked(event.getTarget());
 		}
+	}
+
+	@SubscribeEvent
+	public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+		ClientLogic.getInstance().onWorldUnload();
 	}
 }

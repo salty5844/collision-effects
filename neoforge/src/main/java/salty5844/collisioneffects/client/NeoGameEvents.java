@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import salty5844.collisioneffects.client.core.ClientLogic;
@@ -21,5 +22,10 @@ public final class NeoGameEvents {
 		if (event.getEntity() == Minecraft.getInstance().player) {
 			ClientLogic.getInstance().onEntityAttacked(event.getTarget());
 		}
+	}
+
+	@SubscribeEvent
+	public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+		ClientLogic.getInstance().onWorldUnload();
 	}
 }

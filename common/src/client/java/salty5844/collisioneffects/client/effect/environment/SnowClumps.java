@@ -48,6 +48,9 @@ public final class SnowClumps {
 		new SnowClumpType(Identifier.fromNamespaceAndPath("collision-effects", "textures/clumps/large-3.png"), 16, 1.5F)
 	};
 
+	private static final List<SnowClumpType> WEIGHTED_CLUMP_TYPES =
+		ParticleVisuals.buildWeightedPool(CLUMP_TYPES, CLUMPS_PER_TEXTURE, SnowClumpType::texture);
+
 	private static final class SnowClump {
 		private float x;
 		private float y;
@@ -103,13 +106,7 @@ public final class SnowClumps {
 	}
 
 	private void spawnAllTypes(int width, int height, long now) {
-		List<SnowClumpType> weightedTypes = new ArrayList<>();
-		for (SnowClumpType clumpType : CLUMP_TYPES) {
-			int weightedRepeats = CLUMPS_PER_TEXTURE * ParticleVisuals.filenameSizeWeight(clumpType.texture());
-			for (int i = 0; i < weightedRepeats; i++) {
-				weightedTypes.add(clumpType);
-			}
-		}
+		List<SnowClumpType> weightedTypes = new ArrayList<>(WEIGHTED_CLUMP_TYPES);
 		while (!weightedTypes.isEmpty()) {
 			SnowClumpType clumpType = TextureSelection.popRandomAvoidingRepeat(weightedTypes, random, this.lastSpawnTexture, entry -> entry.texture());
 			if (clumpType == null) {
