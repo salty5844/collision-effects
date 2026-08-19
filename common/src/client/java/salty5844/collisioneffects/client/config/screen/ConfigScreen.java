@@ -664,10 +664,13 @@ public final class ConfigScreen extends Screen {
 		if (scissorBottom <= scissorTop) {
 			return;
 		}
+		boolean mouseInViewport = mouseY >= scissorTop && mouseY < scissorBottom;
+		int widgetMouseX = mouseInViewport ? mouseX : -1;
+		int widgetMouseY = mouseInViewport ? mouseY : -1;
 		graphics.enableScissor(0, scissorTop, this.width, scissorBottom);
 		for (net.minecraft.client.gui.components.AbstractWidget widget : scrollableWidgets) {
 			if (widget.visible) {
-				widget.render(graphics, mouseX, mouseY, partialTick);
+				widget.render(graphics, widgetMouseX, widgetMouseY, partialTick);
 			}
 		}
 		graphics.disableScissor();
