@@ -29,4 +29,3 @@ side="CLIENT"
 
 [[mixins]]
 config="collision-effects.mixins.json"
-

@@ -1,12 +1,12 @@
 plugins {
 	id 'collisioneffects.platform-conventions'
-	id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+	id 'net.neoforged.moddev.legacyforge' version '2.0.144'
 }
 
 version = project.version
 group = project.group
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 sourceSets.main.resources {
 	srcDir '../common/src/main/resources'
@@ -17,38 +17,43 @@ sourceSets.main.java {
 	srcDir '../common/src/client/java'
 }
 
-minecraft {
-	mappings channel: 'official', version: '1.20.1'
+// NeoForge did not exist as its own toolchain until Minecraft 1.20.2, so 1.20.1 support is
+// published as a legacy fork of Forge (net.neoforged:forge) built with the legacyforge plugin.
+legacyForge {
+	enable {
+		neoForgeVersion = "${project.minecraft_version}-${project.neoforge_version}"
+	}
 
 	runs {
 		configureEach {
-			workingDirectory project.file('run')
-			property 'eventbus.api.strictRuntimeChecks', 'true'
+			systemProperty 'forge.logging.markers', 'REGISTRIES'
 			// Mixin only reads configs from the jar manifest, so the dev run needs this passed explicitly.
-			args '--mixin.config=collision-effects.mixins.json'
+			programArguments.addAll '--mixin.config', 'collision-effects.mixins.json'
 		}
 
 		client {
-			workingDirectory project.file('run')
+			client()
 		}
 
 		server {
-			workingDirectory project.file('run')
-			args '--nogui'
+			server()
+			programArguments.add '--nogui'
+		}
+	}
+
+	mods {
+		"collision_effects" {
+			sourceSet sourceSets.main
 		}
 	}
 }
 
 repositories {
 	maven {
-		name = 'Forge'
-		url = 'https://maven.minecraftforge.net/'
+		name = 'NeoForged'
+		url = 'https://maven.neoforged.net/releases/'
 	}
 	mavenCentral()
-}
-
-dependencies {
-	minecraft "net.minecraftforge:forge:${project.forge_version}"
 }
 
 tasks.named('jar', Jar) {
