@@ -42,4 +42,4 @@ replay_*.log
 .settings/
 .vscode/
 bin/
-main.code-workspace
+*.code-workspace
