@@ -6,7 +6,9 @@ plugins {
 version = project.version
 group = project.group
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+// Must match the actual runtime JVM (Java 17) used by real NeoForge 1.20.1 clients,
+// otherwise Mixin-transformed vanilla classes fail to load with UnsupportedClassVersionError.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 sourceSets.main.resources {
 	srcDir '../common/src/main/resources'
