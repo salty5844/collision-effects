@@ -24,11 +24,13 @@ public final class ParticleVisuals {
 	}
 
 	// 1.20 GuiGraphics has no tinted blit overload, so the alpha has to be applied through setColor.
-	// Blending is enabled once per HUD pass by beginBatch/endBatch rather than per particle.
 	public static void blitTinted(GuiGraphics graphics, ResourceLocation texture, int width, int height, float alpha) {
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
 		graphics.setColor(1.0F, 1.0F, 1.0F, alpha);
 		graphics.blit(texture, 0, 0, 0.0F, 0.0F, width, height, width, height);
 		graphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.disableBlend();
 	}
 
 	public static void beginBatch() {
