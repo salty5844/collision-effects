@@ -18,7 +18,7 @@ sourceSets.main.java {
 }
 
 minecraft {
-	mappings channel: 'official', version: '1.20.1'
+	mappings channel: 'official', version: '1.20.2'
 
 	runs {
 		configureEach {

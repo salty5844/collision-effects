@@ -1,12 +1,12 @@
 plugins {
 	id 'collisioneffects.platform-conventions'
-	id 'net.neoforged.moddev.legacyforge' version '2.0.144'
+	id 'net.neoforged.gradle.userdev' version '7.0.116'
 }
 
 version = project.version
 group = project.group
 
-// Must match the actual runtime JVM (Java 17) used by real NeoForge 1.20.1 clients,
+// Must match the actual runtime JVM (Java 17) used by real NeoForge 1.20.2 clients,
 // otherwise Mixin-transformed vanilla classes fail to load with UnsupportedClassVersionError.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
@@ -19,34 +19,23 @@ sourceSets.main.java {
 	srcDir '../common/src/client/java'
 }
 
-// NeoForge did not exist as its own toolchain until Minecraft 1.20.2, so 1.20.1 support is
-// published as a legacy fork of Forge (net.neoforged:forge) built with the legacyforge plugin.
-legacyForge {
-	enable {
-		neoForgeVersion = "${project.minecraft_version}-${project.neoforge_version}"
+// Minecraft 1.20.2 is the first version NeoForge published as its own standalone
+// toolchain (net.neoforged:neoforge), built with NeoGradle rather than the legacy
+// Forge-compatibility plugin used for 1.20.1.
+runs {
+	configureEach {
+		workingDirectory project.file('run')
+		systemProperty 'forge.logging.markers', 'REGISTRIES'
+		// Mixin only reads configs from the jar manifest, so the dev run needs this passed explicitly.
+		programArguments.addAll '--mixin.config', 'collision-effects.mixins.json'
+		modSource sourceSets.main
 	}
 
-	runs {
-		configureEach {
-			systemProperty 'forge.logging.markers', 'REGISTRIES'
-			// Mixin only reads configs from the jar manifest, so the dev run needs this passed explicitly.
-			programArguments.addAll '--mixin.config', 'collision-effects.mixins.json'
-		}
-
-		client {
-			client()
-		}
-
-		server {
-			server()
-			programArguments.add '--nogui'
-		}
+	client {
 	}
 
-	mods {
-		"collision_effects" {
-			sourceSet sourceSets.main
-		}
+	server {
+		programArgument '--nogui'
 	}
 }
 
@@ -56,6 +45,10 @@ repositories {
 		url = 'https://maven.neoforged.net/releases/'
 	}
 	mavenCentral()
+}
+
+dependencies {
+	implementation "net.neoforged:neoforge:${project.neoforge_version}"
 }
 
 tasks.named('jar', Jar) {

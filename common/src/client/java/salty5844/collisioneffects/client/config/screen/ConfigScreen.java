@@ -244,10 +244,10 @@ public final class ConfigScreen extends Screen {
 			Button doneButton = this.doneButton;
 			return doneButton != null && doneButton.mouseClicked(mouseX, mouseY, button);
 		}
-		if (mouseY < getViewportBorderTop()) {
+		if (mouseY < getVisibleTop()) {
 			return true;
 		}
-		if (mouseY >= getViewportBorderBottom()) {
+		if (mouseY >= getVisibleBottom()) {
 			return true;
 		}
 		if (listeningForConfigurationHotkey && button == InputConstants.MOUSE_BUTTON_LEFT) {
@@ -271,13 +271,13 @@ public final class ConfigScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		if (maxScroll > 0 && scrollY != 0.0D) {
 			int scrollStep = Math.max(1, MENU_ROW_HEIGHT / 2);
 			scrollBy(scrollY > 0.0D ? -scrollStep : scrollStep);
 			return true;
 		}
-		return super.mouseScrolled(mouseX, mouseY, scrollY);
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override
@@ -323,9 +323,8 @@ public final class ConfigScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-		renderBackground(graphics);
-		renderScrollableWidgets(graphics, mouseX, mouseY, partialTick);
 		super.render(graphics, mouseX, mouseY, partialTick);
+		renderScrollableWidgets(graphics, mouseX, mouseY, partialTick);
 		renderScrollbar(graphics);
 	}
 
@@ -664,6 +663,7 @@ public final class ConfigScreen extends Screen {
 		if (scissorBottom <= scissorTop) {
 			return;
 		}
+
 		boolean mouseInViewport = mouseY >= scissorTop && mouseY < scissorBottom;
 		int widgetMouseX = mouseInViewport ? mouseX : -1;
 		int widgetMouseY = mouseInViewport ? mouseY : -1;
@@ -673,6 +673,7 @@ public final class ConfigScreen extends Screen {
 				widget.render(graphics, widgetMouseX, widgetMouseY, partialTick);
 			}
 		}
+		graphics.flush();
 		graphics.disableScissor();
 	}
 

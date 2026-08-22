@@ -1,9 +1,9 @@
 package salty5844.collisioneffects;
 
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.client.ConfigScreenHandler;
 import salty5844.collisioneffects.client.config.screen.ConfigScreen;
 import salty5844.collisioneffects.client.core.ClientLogic;
 
